@@ -15,7 +15,9 @@ export default function useDashboardStats() {
   return useQuery<DashboardStats, Error>({
     queryKey: ["dashboard", "summary"],
     queryFn: async (): Promise<DashboardStats> => {
-      const data: DashboardSummaryDTO = await dashboardService.getSummary({ lastDays: 7 })
+      const data: DashboardSummaryDTO = await dashboardService.getSummary({
+        lastDays: 7
+      })
 
       return {
         totalActive: data.totalActive,

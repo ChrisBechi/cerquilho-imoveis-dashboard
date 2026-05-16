@@ -68,12 +68,22 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
     setSelectedIndex(0)
   }, [listing.id])
 
-  const { data: details, isLoading: detailsLoading, error: detailsError, refetch: refetchDetails } = useListingDetails(listing.id)
+  const {
+    data: details,
+    isLoading: detailsLoading,
+    error: detailsError,
+    refetch: refetchDetails
+  } = useListingDetails(listing.id)
   const toast = useToast()
 
   useEffect(() => {
     if (detailsError) {
-      toast({ title: "Erro ao carregar detalhes do imóvel", status: "error", duration: 5000, isClosable: true })
+      toast({
+        title: "Erro ao carregar detalhes do imóvel",
+        status: "error",
+        duration: 5000,
+        isClosable: true
+      })
     }
   }, [detailsError, toast])
 
@@ -97,6 +107,18 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
   }
 
+  function handleImageDragEnd(
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: { offset: { x: number } }
+  ) {
+    const threshold = 80
+    if (info.offset.x > threshold) {
+      previousImage()
+    } else if (info.offset.x < -threshold) {
+      nextImage()
+    }
+  }
+
   return (
     <>
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
@@ -114,6 +136,10 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                   objectFit="cover"
                   cursor="zoom-in"
                   onDoubleClick={onLightboxOpen}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.16}
+                  onDragEnd={handleImageDragEnd}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -136,7 +162,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                 w="42px"
                 h="42px"
                 borderRadius="full"
-                bg="glass"
+                bg="blackAlpha.400"
                 justify="center"
                 align="center"
                 cursor="pointer"
@@ -155,7 +181,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                 w="42px"
                 h="42px"
                 borderRadius="full"
-                bg="glass"
+                bg="blackAlpha.600"
                 justify="center"
                 align="center"
                 cursor="pointer"
@@ -174,7 +200,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                 w="42px"
                 h="42px"
                 borderRadius="full"
-                bg="glass"
+                bg="blackAlpha.600"
                 justify="center"
                 align="center"
                 cursor="pointer"
@@ -185,34 +211,57 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                 <FiChevronRight />
               </Flex>
 
-              <Stack position="absolute" bottom={6} left={6} spacing={3}>
-                <HStack>
-                  {listing.is_new && (
-                    <Badge
-                      colorScheme="green"
-                      borderRadius="full"
-                      px={3}
-                      py={1}
-                    >
-                      NOVO
-                    </Badge>
-                  )}
-                  {listing.is_reduced && (
-                    <Badge colorScheme="red" borderRadius="full" px={3} py={1}>
-                      REDUZIU
-                    </Badge>
-                  )}
-                  {listing.is_rented && (
-                    <Badge
-                      colorScheme="purple"
-                      borderRadius="full"
-                      px={3}
-                      py={1}
-                    >
-                      ALUGADO
-                    </Badge>
-                  )}
-                </HStack>
+              <HStack
+                position="absolute"
+                top={5}
+                left={5}
+                spacing={2}
+                zIndex={2}
+              >
+                {listing.is_new && (
+                  <Badge
+                    borderRadius="full"
+                    px={3}
+                    py={1}
+                    bg="rgba(34, 122, 238, 0.7)"
+                    color="white"
+                  >
+                    NOVO
+                  </Badge>
+                )}
+                {listing.is_reduced && (
+                  <Badge
+                    borderRadius="full"
+                    px={3}
+                    py={1}
+                    bg="rgba(239,68,68,0.7)"
+                    color="white"
+                  >
+                    REDUZIU
+                  </Badge>
+                )}
+                {listing.is_rented && (
+                  <Badge
+                    borderRadius="full"
+                    px={3}
+                    py={1}
+                    bg="rgba(168,85,247,0.14)"
+                    color="white"
+                  >
+                    ALUGADO
+                  </Badge>
+                )}
+              </HStack>
+
+              <Box
+                position="absolute"
+                bottom={6}
+                left={6}
+                bg="blackAlpha.700"
+                px={4}
+                py={2}
+                borderRadius="xl"
+              >
                 <Text
                   fontSize="3xl"
                   fontWeight="bold"
@@ -221,7 +270,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                 >
                   {listing.price}
                 </Text>
-              </Stack>
+              </Box>
             </Box>
 
             <Flex
@@ -319,10 +368,22 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                   <Skeleton height="16px" mt={4} w="40%" />
                 </>
               ) : detailsError ? (
-                <Box bg="surfaceSecondary" borderRadius="2xl" p={4} border="1px solid" borderColor="border">
-                  <Heading size="sm" mb={2}>Erro ao carregar dados</Heading>
-                  <Text color="gray.400" mb={3}>{String(detailsError)}</Text>
-                  <Button onClick={() => refetchDetails()}>Tentar novamente</Button>
+                <Box
+                  bg="surfaceSecondary"
+                  borderRadius="2xl"
+                  p={4}
+                  border="1px solid"
+                  borderColor="border"
+                >
+                  <Heading size="sm" mb={2}>
+                    Erro ao carregar dados
+                  </Heading>
+                  <Text color="gray.400" mb={3}>
+                    {String(detailsError)}
+                  </Text>
+                  <Button onClick={() => refetchDetails()}>
+                    Tentar novamente
+                  </Button>
                 </Box>
               ) : (
                 (() => {
@@ -345,7 +406,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
               {listing.is_reduced && listing.old_price && (
                 <Box
                   bg="rgba(255,0,0,0.08)"
-                  border="1px solid rgba(255,0,0,0.18)"
+                  border="1px solid rgba(255,0,0,0.7)"
                   borderRadius="2xl"
                   p={5}
                 >
@@ -357,10 +418,11 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       {listing.old_price}
                     </Text>
                     <Badge
-                      colorScheme="green"
                       borderRadius="full"
                       px={3}
                       py={1}
+                      bg="rgba(34,197,94,0.7)"
+                      color="white"
                     >
                       {listing.price_difference}
                     </Badge>

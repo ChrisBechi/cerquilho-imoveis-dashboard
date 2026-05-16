@@ -7,7 +7,7 @@ interface Props extends BoxProps {
 
 export default function SectionTitle({ title, description, ...props }: Props) {
   return (
-    <Stack spacing={2} mb={6} {...props}>
+    <Stack spacing={5} mb={6} {...props}>
       <Heading size="lg">{title}</Heading>
       <Text color="textSecondary" fontSize="md" maxW="720px">
         {description}

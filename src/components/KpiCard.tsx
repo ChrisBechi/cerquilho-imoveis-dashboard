@@ -12,6 +12,22 @@ interface Props {
   onRetry?: () => void
 }
 
-export default function KpiCard({ title, value, icon, isLoading, error, onRetry }: Props) {
-  return <StatCard title={title} value={value} icon={icon} isLoading={isLoading} error={error} onRetry={onRetry} />
+export default function KpiCard({
+  title,
+  value,
+  icon,
+  isLoading,
+  error,
+  onRetry
+}: Props) {
+  return (
+    <StatCard
+      title={title}
+      value={value}
+      icon={icon}
+      isLoading={isLoading}
+      error={error}
+      onRetry={onRetry}
+    />
+  )
 }

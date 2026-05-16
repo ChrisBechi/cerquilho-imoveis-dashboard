@@ -10,7 +10,9 @@ export function useProviderCounts() {
   })
 }
 
-export type ProviderAverageWithFormatted = ProviderAverage & { formatted: string }
+export type ProviderAverageWithFormatted = ProviderAverage & {
+  formatted: string
+}
 
 export function useProviderAverages() {
   return useQuery<ProviderAverageWithFormatted[], Error>({

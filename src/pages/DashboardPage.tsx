@@ -29,7 +29,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (error) {
-      toast({ title: "Erro ao carregar métricas", status: "error", duration: 5000, isClosable: true })
+      toast({
+        title: "Erro ao carregar métricas",
+        status: "error",
+        duration: 5000,
+        isClosable: true
+      })
     }
   }, [error, toast])
 

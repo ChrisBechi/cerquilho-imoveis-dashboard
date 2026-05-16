@@ -1,4 +1,11 @@
-import { Box, Flex, Text, type BoxProps, Skeleton, Button } from "@chakra-ui/react"
+import {
+  Box,
+  Flex,
+  Text,
+  type BoxProps,
+  Skeleton,
+  Button
+} from "@chakra-ui/react"
 import type { ReactNode } from "react"
 
 interface Props extends BoxProps {
@@ -10,9 +17,24 @@ interface Props extends BoxProps {
   onRetry?: () => void
 }
 
-export default function StatCard({ title, value, icon, isLoading, error, ...props }: Props) {
+export default function StatCard({
+  title,
+  value,
+  icon,
+  isLoading,
+  error,
+  ...props
+}: Props) {
   return (
-    <Box p={6} bg="surfaceSecondary" border="1px solid" borderColor="border" boxShadow="soft" borderRadius="2xl" {...props}>
+    <Box
+      p={6}
+      bg="surfaceSecondary"
+      border="1px solid"
+      borderColor="border"
+      boxShadow="soft"
+      borderRadius="2xl"
+      {...props}
+    >
       <Flex justify="space-between" align="center" mb={4}>
         <Text color="textSecondary" fontSize="sm">
           {title}

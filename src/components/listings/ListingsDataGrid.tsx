@@ -63,10 +63,18 @@ export default function ListingsDataGrid() {
   const toast = useToast()
 
   if (error) {
-    toast({ title: "Erro ao carregar listagens", status: "error", duration: 5000, isClosable: true })
+    toast({
+      title: "Erro ao carregar listagens",
+      status: "error",
+      duration: 5000,
+      isClosable: true
+    })
   }
 
-  const providers = useMemo(() => Array.from(new Set(listings.map((listing: any) => listing.provider))), [listings])
+  const providers = useMemo(
+    () => Array.from(new Set(listings.map((listing: any) => listing.provider))),
+    [listings]
+  )
 
   const filteredListings = useMemo(() => {
     const normalizedSearch = deferredSearch.toLowerCase()
@@ -128,7 +136,7 @@ export default function ListingsDataGrid() {
     }
 
     return filtered
-    }, [
+  }, [
     deferredSearch,
     selectedProviders,
     minBedrooms,
@@ -229,9 +237,19 @@ export default function ListingsDataGrid() {
               ))}
             </SimpleGrid>
           ) : error ? (
-            <Box bg="surfaceSecondary" borderRadius="2xl" p={8} border="1px solid" borderColor="border">
-              <Heading size="md" mb={2}>Erro ao carregar listagens</Heading>
-              <Text color="gray.400" mb={4}>{String(error)}</Text>
+            <Box
+              bg="surfaceSecondary"
+              borderRadius="2xl"
+              p={8}
+              border="1px solid"
+              borderColor="border"
+            >
+              <Heading size="md" mb={2}>
+                Erro ao carregar listagens
+              </Heading>
+              <Text color="gray.400" mb={4}>
+                {String(error)}
+              </Text>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </Box>
           ) : isMobile === true ? (

@@ -83,7 +83,10 @@ const getPriceDifference = (
 const getIsNew = (events: ListingEventRow[]) => {
   const createdEvents = events
     .filter((event) => event.type === "created")
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
 
   if (!createdEvents.length) return false
 
@@ -96,12 +99,16 @@ const getIsNew = (events: ListingEventRow[]) => {
 const getIsReduced = (events: ListingEventRow[]) => {
   if (!events.length) return false
   const sorted = [...events].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
   return sorted[0].type === "price_drop"
 }
 
-const normalizeImages = (images: ListingImageRow[] | undefined, thumbnailUrl?: string) => {
+const normalizeImages = (
+  images: ListingImageRow[] | undefined,
+  thumbnailUrl?: string
+) => {
   const normalized = (images ?? [])
     .map(getImageUrl)
     .filter((url): url is string => Boolean(url))
@@ -124,7 +131,11 @@ export function normalizeListing(
   return {
     id: row.id,
     title: row.title,
-    price: row.price_label ? String(row.price_label) : currentPrice != null ? centsToBRL(currentPrice) : "",
+    price: row.price_label
+      ? String(row.price_label)
+      : currentPrice != null
+        ? centsToBRL(currentPrice)
+        : "",
     price_numeric: currentPrice != null ? Math.round(currentPrice / 100) : 0,
     provider: row.provider,
     neighborhood: row.neighborhood,

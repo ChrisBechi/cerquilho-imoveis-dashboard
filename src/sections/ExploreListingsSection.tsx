@@ -1,4 +1,13 @@
-import { Box, Button, Heading, HStack, Text, SimpleGrid, Skeleton, useToast } from "@chakra-ui/react"
+import {
+  Box,
+  Button,
+  Heading,
+  HStack,
+  Text,
+  SimpleGrid,
+  Skeleton,
+  useToast
+} from "@chakra-ui/react"
 
 import { useMemo, useState } from "react"
 
@@ -12,35 +21,47 @@ type TabType = "favorites" | "cheap" | "expensive" | "new"
 
 export default function ExploreListingsSection() {
   const [activeTab, setActiveTab] = useState<TabType>("new")
-  const { isFavorite, favorites, toggleFavorite } = useFavorites()
+  const { isFavorite, favorites, favoriteListings, toggleFavorite } =
+    useFavorites()
 
   const { data: listings = [], isLoading, error, refetch } = useListings(50)
   const toast = useToast()
 
   if (error) {
-    toast({ title: "Erro ao carregar imóveis", status: "error", duration: 5000, isClosable: true })
+    toast({
+      title: "Erro ao carregar imóveis",
+      status: "error",
+      duration: 5000,
+      isClosable: true
+    })
   }
 
   const filteredListings = useMemo(() => {
-    const baseListings = listings.filter((listing: any) => !listing.is_reduced && !listing.is_rented)
+    const baseListings = listings.filter(
+      (listing: any) => !listing.is_reduced && !listing.is_rented
+    )
 
     switch (activeTab) {
       case "cheap":
-        return [...listings].sort((a: any, b: any) => a.price_numeric - b.price_numeric)
+        return [...listings].sort(
+          (a: any, b: any) => a.price_numeric - b.price_numeric
+        )
 
       case "expensive":
-        return [...listings].sort((a: any, b: any) => b.price_numeric - a.price_numeric)
+        return [...listings].sort(
+          (a: any, b: any) => b.price_numeric - a.price_numeric
+        )
 
       case "new":
         return baseListings.filter((listing: any) => listing.is_new)
 
       case "favorites":
-        return listings.filter((listing: any) => isFavorite(listing.id.toString()))
+        return favoriteListings
 
       default:
         return baseListings
     }
-  }, [activeTab, isFavorite, listings])
+  }, [activeTab, favoriteListings, isFavorite, listings])
 
   return (
     <Box>
@@ -100,9 +121,19 @@ export default function ExploreListingsSection() {
           ))}
         </SimpleGrid>
       ) : error ? (
-        <Box bg="surfaceSecondary" borderRadius="2xl" p={8} border="1px solid" borderColor="border">
-          <Heading size="md" mb={2}>Erro ao carregar listagens</Heading>
-          <Text color="gray.400" mb={4}>{String(error)}</Text>
+        <Box
+          bg="surfaceSecondary"
+          borderRadius="2xl"
+          p={8}
+          border="1px solid"
+          borderColor="border"
+        >
+          <Heading size="md" mb={2}>
+            Erro ao carregar listagens
+          </Heading>
+          <Text color="gray.400" mb={4}>
+            {String(error)}
+          </Text>
           <Button onClick={() => refetch()}>Tentar novamente</Button>
         </Box>
       ) : filteredListings.length === 0 ? (

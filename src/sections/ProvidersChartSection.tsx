@@ -1,4 +1,14 @@
-import { Box, Flex, Grid, Heading, Stack, Text, Skeleton, Button, useToast } from "@chakra-ui/react"
+import {
+  Box,
+  Flex,
+  Grid,
+  Heading,
+  Stack,
+  Text,
+  Skeleton,
+  Button,
+  useToast
+} from "@chakra-ui/react"
 
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts"
 
@@ -11,7 +21,12 @@ export default function ProvidersChartSection() {
   const toast = useToast()
 
   if (error) {
-    toast({ title: "Erro ao carregar dados de providers", status: "error", duration: 5000, isClosable: true })
+    toast({
+      title: "Erro ao carregar dados de providers",
+      status: "error",
+      duration: 5000,
+      isClosable: true
+    })
   }
 
   const data = (counts || []).map((c) => ({ name: c.provider, value: c.count }))
@@ -20,9 +35,19 @@ export default function ProvidersChartSection() {
 
   if (error) {
     return (
-      <Box bg="surfaceSecondary" borderRadius="2xl" p={8} border="1px solid" borderColor="border">
-        <Heading size="md" mb={2}>Erro ao carregar dados</Heading>
-        <Text color="gray.400" mb={4}>{String(error)}</Text>
+      <Box
+        bg="surfaceSecondary"
+        borderRadius="2xl"
+        p={8}
+        border="1px solid"
+        borderColor="border"
+      >
+        <Heading size="md" mb={2}>
+          Erro ao carregar dados
+        </Heading>
+        <Text color="gray.400" mb={4}>
+          {String(error)}
+        </Text>
         <Button onClick={() => refetch()}>Tentar novamente</Button>
       </Box>
     )

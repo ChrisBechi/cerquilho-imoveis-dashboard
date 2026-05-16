@@ -1,16 +1,15 @@
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState
-} from "react"
+import { createContext, type ReactNode, useContext, useMemo } from "react"
+
+import { useFavoritesQuery } from "../hooks/useFavorites"
+import type { Listing } from "../types/listing"
 
 interface FavoritesContextData {
   favorites: string[]
+  favoriteListings: Listing[]
   toggleFavorite: (id: string) => void
   isFavorite: (id: string) => boolean
+  isLoading: boolean
+  error: Error | null
 }
 
 const FavoritesContext = createContext({} as FavoritesContextData)
@@ -20,26 +19,25 @@ interface ProviderProps {
 }
 
 export function FavoritesProvider({ children }: ProviderProps) {
-  const [favorites, setFavorites] = useState<string[]>([])
-
-  const toggleFavorite = useCallback((id: string) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    )
-  }, [])
-
-  const isFavorite = useCallback(
-    (id: string) => favorites.includes(id),
-    [favorites]
-  )
+  const {
+    favorites,
+    favoriteListings,
+    isFavorite,
+    toggleFavorite,
+    isLoading,
+    error
+  } = useFavoritesQuery()
 
   const value = useMemo(
     () => ({
       favorites,
+      favoriteListings,
+      isFavorite,
       toggleFavorite,
-      isFavorite
+      isLoading,
+      error
     }),
-    [favorites, toggleFavorite, isFavorite]
+    [favorites, favoriteListings, isFavorite, toggleFavorite, isLoading, error]
   )
 
   return (

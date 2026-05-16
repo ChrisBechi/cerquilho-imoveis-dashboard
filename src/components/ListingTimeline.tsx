@@ -110,14 +110,8 @@ export default function ListingTimeline({ items }: Props) {
                 <Flex justify="space-between" align="start" mb={1} gap={4}>
                   <Text fontWeight="bold">{item.title}</Text>
 
-                  <Text
-                    color="gray.500"
-                    fontSize="sm"
-                    whiteSpace="
-                      nowrap
-                    "
-                  >
-                    {item.date}
+                  <Text color="gray.500" fontSize="sm" whiteSpace="nowrap">
+                    {formatDateBR(item.date)}
                   </Text>
                 </Flex>
 
@@ -131,4 +125,17 @@ export default function ListingTimeline({ items }: Props) {
       </Stack>
     </Box>
   )
+}
+
+function formatDateBR(dateStr: string) {
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return dateStr
+
+  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const year = date.getFullYear()
+  const hours = String(date.getHours()).padStart(2, "0")
+  const minutes = String(date.getMinutes()).padStart(2, "0")
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`
 }

@@ -35,11 +35,12 @@ function ListingStatusBadges({ listing }: { listing: Listing }) {
     <HStack spacing={2} flexWrap="wrap">
       {listing.is_new && (
         <Badge
-          colorScheme="green"
           px={3}
           py={1}
           borderRadius="full"
           fontSize="0.72rem"
+          bg="rgba(34, 122, 238, 0.8)"
+          color="white"
         >
           NOVO
         </Badge>
@@ -47,11 +48,12 @@ function ListingStatusBadges({ listing }: { listing: Listing }) {
 
       {listing.is_reduced && (
         <Badge
-          colorScheme="red"
           px={3}
           py={1}
           borderRadius="full"
           fontSize="0.72rem"
+          bg="rgba(239,68,68,0.8)"
+          color="white"
         >
           ↓ REDUZIU
         </Badge>
@@ -59,11 +61,12 @@ function ListingStatusBadges({ listing }: { listing: Listing }) {
 
       {listing.is_rented && (
         <Badge
-          colorScheme="purple"
           px={3}
           py={1}
           borderRadius="full"
           fontSize="0.72rem"
+          bg="rgba(168,85,247,0.8)"
+          color="white"
         >
           ALUGADO
         </Badge>
@@ -75,38 +78,17 @@ function ListingStatusBadges({ listing }: { listing: Listing }) {
 function ListingSpecs({ listing }: { listing: Listing }) {
   return (
     <Flex gap={1} flexWrap="wrap" color="gray.300" fontSize="sm">
-      <Flex
-        align="center"
-        gap={2}
-        bg="glass"
-        px={3}
-        py={2}
-        borderRadius="xl"
-      >
+      <Flex align="center" gap={2} bg="glass" px={3} py={2} borderRadius="xl">
         <FiHome />
         {listing.bedrooms} quartos
       </Flex>
 
-      <Flex
-        align="center"
-        gap={2}
-        bg="glass"
-        px={3}
-        py={2}
-        borderRadius="xl"
-      >
+      <Flex align="center" gap={2} bg="glass" px={3} py={2} borderRadius="xl">
         <FaBath />
         {listing.bathrooms} banheiros
       </Flex>
 
-      <Flex
-        align="center"
-        gap={2}
-        bg="glass"
-        px={3}
-        py={2}
-        borderRadius="xl"
-      >
+      <Flex align="center" gap={2} bg="glass" px={3} py={2} borderRadius="xl">
         <TbRulerMeasure />
         {listing.area}m²
       </Flex>
@@ -165,11 +147,12 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
 
       <Stack spacing={2} align="end" zIndex={1}>
         <Badge
-          colorScheme="green"
           borderRadius="full"
           px={2}
           py={0}
           fontSize="0.6rem"
+          bg="rgba(34,197,94)"
+          color="white"
         >
           ECONOMIA
         </Badge>
@@ -284,16 +267,16 @@ function ListingCard({
               position="absolute"
               right={3}
               top={-1}
-              bg="glass"
+              bg="blackAlpha.600"
               _hover={{ transform: "scale(1.08)", bg: "glassHover" }}
             />
           </Flex>
 
           <Box
             position="absolute"
-            bottom={4}
-            right={4}
-            bg="glass"
+            bottom={3}
+            right={2}
+            bg="blackAlpha.600"
             px={4}
             py={2}
             borderRadius="xl"
