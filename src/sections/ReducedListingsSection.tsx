@@ -12,6 +12,10 @@ export default function ReducedListingsSection() {
   const { data: listings = [], isLoading } = useListings(50)
   const reducedListings = listings.filter((listing: any) => listing.is_reduced)
 
+  if (!reducedListings.length) {
+    return null
+  }
+
   return (
     <Box mt={14}>
       <HStack mb={6} spacing={4}>
