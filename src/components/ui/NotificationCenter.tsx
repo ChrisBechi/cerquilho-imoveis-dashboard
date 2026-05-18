@@ -120,35 +120,33 @@ export default function NotificationCenter() {
   )
 }
 
-function FlexHeader({ markAllAsRead, clearNotifications }: any) {
+function FlexHeader({ notifications, markAllAsRead, clearNotifications }: any) {
   return (
-    <Box
+    <VStack
       px={5}
       py={4}
       borderBottom="1px solid"
       borderBottomColor="border"
+      textAlign="left"
       display="flex"
-      justifyContent="space-between"
-      alignItems="center"
+      w="100%"
+      alignItems="flex-start"
     >
-      <Box>
-        <Text fontWeight="bold" fontSize="lg">
-          Notificações
-        </Text>
-        <Text fontSize="sm" color="textSecondary">
-          Últimas atualizações do sistema
-        </Text>
-      </Box>
+      <Text fontWeight="bold" fontSize="lg">
+        Notificações
+      </Text>
 
-      <HStack spacing={2}>
-        <Button size="sm" onClick={markAllAsRead}>
-          Marcar todas
-        </Button>
-        <Button size="sm" variant="ghost" onClick={clearNotifications}>
-          Limpar
-        </Button>
-      </HStack>
-    </Box>
+      {notifications.length > 0 && (
+        <HStack spacing={2}>
+          <Button size="sm" onClick={markAllAsRead}>
+            Marcar todas
+          </Button>
+          <Button size="sm" variant="ghost" onClick={clearNotifications}>
+            Limpar
+          </Button>
+        </HStack>
+      )}
+    </VStack>
   )
 }
 

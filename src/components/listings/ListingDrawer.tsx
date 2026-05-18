@@ -9,16 +9,22 @@ import {
   Flex,
   HStack,
   Icon,
+  IconButton,
   Image,
   Link,
   Stack,
   Text,
   useDisclosure,
   useToast,
-  Heading
+  Heading,
+  VStack,
+  Skeleton
 } from "@chakra-ui/react"
+
 import { AnimatePresence, motion } from "framer-motion"
+
 import { useEffect, useMemo, useRef, useState } from "react"
+
 import {
   FiChevronLeft,
   FiChevronRight,
@@ -27,21 +33,30 @@ import {
   FiMapPin,
   FiX
 } from "react-icons/fi"
+
 import { TbRulerMeasure } from "react-icons/tb"
-import ImageLightbox from "../ImageLightbox"
+
 import type { Listing } from "../../types/listing"
+
 import { FaBath } from "react-icons/fa"
+
+import ImageLightbox from "../ImageLightbox"
+
 import useListingDetails from "../../hooks/useListingDetails"
+
 import PriceHistoryChart from "../PriceHistoryChart"
+
 import ListingTimeline from "../ListingTimeline"
+
 import ListingInfoCard from "./ListingInfoCard"
-import { Skeleton } from "@chakra-ui/react"
 
 const MotionImage = motion(Image)
 
 interface Props {
   isOpen: boolean
+
   onClose: () => void
+
   listing: Listing | null
 }
 
@@ -54,34 +69,46 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
     () => (listing.images?.length ? listing.images : [listing.thumbnail_url]),
     [listing]
   )
+
   const [selectedIndex, setSelectedIndex] = useState(0)
+
   const selectedImage = images[selectedIndex]
+
   const thumbnailsRef = useRef<HTMLDivElement>(null)
 
   const {
     isOpen: isLightboxOpen,
+
     onOpen: onLightboxOpen,
+
     onClose: onLightboxClose
   } = useDisclosure()
+
+  const {
+    data: details,
+
+    isLoading: detailsLoading,
+
+    error: detailsError,
+
+    refetch: refetchDetails
+  } = useListingDetails(listing.id)
+
+  const toast = useToast()
 
   useEffect(() => {
     setSelectedIndex(0)
   }, [listing.id])
 
-  const {
-    data: details,
-    isLoading: detailsLoading,
-    error: detailsError,
-    refetch: refetchDetails
-  } = useListingDetails(listing.id)
-  const toast = useToast()
-
   useEffect(() => {
     if (detailsError) {
       toast({
         title: "Erro ao carregar detalhes do imóvel",
+
         status: "error",
+
         duration: 5000,
+
         isClosable: true
       })
     }
@@ -89,12 +116,18 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
   useEffect(() => {
     const container = thumbnailsRef.current
-    if (!container) return
+
+    if (!container) {
+      return
+    }
 
     const activeThumb = container.children[selectedIndex] as HTMLElement
+
     activeThumb?.scrollIntoView({
       behavior: "smooth",
+
       inline: "center",
+
       block: "nearest"
     })
   }, [selectedIndex])
@@ -109,9 +142,15 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
   function handleImageDragEnd(
     _: MouseEvent | TouchEvent | PointerEvent,
-    info: { offset: { x: number } }
+
+    info: {
+      offset: {
+        x: number
+      }
+    }
   ) {
     const threshold = 80
+
     if (info.offset.x > threshold) {
       previousImage()
     } else if (info.offset.x < -threshold) {
@@ -123,329 +162,439 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
     <>
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
         <DrawerOverlay />
-        <DrawerContent>
+
+        <DrawerContent bg="#050816">
           <DrawerBody p={0}>
-            <Box position="relative">
-              <AnimatePresence mode="wait">
-                <MotionImage
-                  key={selectedImage}
-                  src={selectedImage}
-                  alt={listing.title}
-                  h="340px"
-                  w="100%"
-                  objectFit="cover"
-                  cursor="zoom-in"
-                  onDoubleClick={onLightboxOpen}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.16}
-                  onDragEnd={handleImageDragEnd}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  style={{ pointerEvents: "auto" }}
-                />
-              </AnimatePresence>
-
-              <Flex
-                position="absolute"
-                inset={0}
-                pointerEvents="none"
-                bgGradient="linear(to-t, rgba(0,0,0,0.85), transparent)"
-              />
-
-              <Flex
-                position="absolute"
-                top={5}
-                right={5}
-                w="42px"
-                h="42px"
-                borderRadius="full"
-                bg="blackAlpha.400"
-                justify="center"
-                align="center"
-                cursor="pointer"
-                transition="0.2s"
-                _hover={{ bg: "glassHover" }}
-                onClick={onClose}
-              >
-                <FiX />
-              </Flex>
-
-              <Flex
-                position="absolute"
-                left={4}
-                top="50%"
-                transform="translateY(-50%)"
-                w="42px"
-                h="42px"
-                borderRadius="full"
-                bg="blackAlpha.600"
-                justify="center"
-                align="center"
-                cursor="pointer"
-                transition="0.2s"
-                _hover={{ bg: "glassHover" }}
-                onClick={previousImage}
-              >
-                <FiChevronLeft />
-              </Flex>
-
-              <Flex
-                position="absolute"
-                right={4}
-                top="50%"
-                transform="translateY(-50%)"
-                w="42px"
-                h="42px"
-                borderRadius="full"
-                bg="blackAlpha.600"
-                justify="center"
-                align="center"
-                cursor="pointer"
-                transition="0.2s"
-                _hover={{ bg: "glassHover" }}
-                onClick={nextImage}
-              >
-                <FiChevronRight />
-              </Flex>
-
-              <HStack
-                position="absolute"
-                top={5}
-                left={5}
-                spacing={2}
-                zIndex={2}
-              >
-                {listing.is_new && (
-                  <Badge
-                    borderRadius="full"
-                    px={3}
-                    py={1}
-                    bg="rgba(34, 122, 238, 0.7)"
-                    color="white"
-                  >
-                    NOVO
-                  </Badge>
-                )}
-                {listing.is_reduced && (
-                  <Badge
-                    borderRadius="full"
-                    px={3}
-                    py={1}
-                    bg="rgba(239,68,68,0.7)"
-                    color="white"
-                  >
-                    REDUZIU
-                  </Badge>
-                )}
-                {listing.is_rented && (
-                  <Badge
-                    borderRadius="full"
-                    px={3}
-                    py={1}
-                    bg="rgba(168,85,247,0.14)"
-                    color="white"
-                  >
-                    ALUGADO
-                  </Badge>
-                )}
-              </HStack>
+            <VStack spacing={0} align="stretch" bg="#050816">
+              {/* HERO IMAGE */}
 
               <Box
-                position="absolute"
-                bottom={6}
-                left={6}
-                bg="blackAlpha.700"
-                px={4}
-                py={2}
-                borderRadius="xl"
+                position="relative"
+                w="100%"
+                h={{
+                  base: "380px",
+                  md: "520px"
+                }}
+                overflow="hidden"
+                bg="black"
               >
-                <Text
-                  fontSize="3xl"
-                  fontWeight="bold"
-                  color="white"
-                  lineHeight="1"
-                >
-                  {listing.price}
-                </Text>
-              </Box>
-            </Box>
+                <AnimatePresence mode="wait">
+                  <MotionImage
+                    key={selectedImage}
+                    src={selectedImage}
+                    alt={listing.title}
+                    w="100%"
+                    h="100%"
+                    objectFit="cover"
+                    display="block"
+                    cursor="zoom-in"
+                    onDoubleClick={onLightboxOpen}
+                    drag="x"
+                    dragConstraints={{
+                      left: 0,
+                      right: 0
+                    }}
+                    dragElastic={0.16}
+                    onDragEnd={handleImageDragEnd}
+                    initial={{
+                      opacity: 0
+                    }}
+                    animate={{
+                      opacity: 1
+                    }}
+                    exit={{
+                      opacity: 0
+                    }}
+                    transition={{
+                      duration: 0.25
+                    }}
+                    style={{
+                      pointerEvents: "auto"
+                    }}
+                  />
+                </AnimatePresence>
 
-            <Flex
-              ref={thumbnailsRef}
-              px={6}
-              pt={5}
-              pb={2}
-              gap={3}
-              overflowX="auto"
-              overflowY="hidden"
-              scrollSnapType="x mandatory"
-              css={{
-                "&::-webkit-scrollbar": { height: "6px" },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "rgba(255,255,255,0.15)",
-                  borderRadius: "999px"
-                }
-              }}
-            >
-              {images.map((image, index) => (
-                <Box
-                  key={image}
-                  minW="95px"
-                  h="72px"
-                  borderRadius="xl"
-                  overflow="hidden"
-                  cursor="pointer"
-                  border="2px solid"
-                  borderColor={
-                    selectedIndex === index ? "brand.400" : "transparent"
-                  }
-                  transition="0.2s"
-                  flexShrink={0}
-                  scrollSnapAlign="start"
-                  position="relative"
-                  _hover={{ opacity: 0.88 }}
-                  onClick={() => setSelectedIndex(index)}
+                {/* BADGES */}
+
+                <HStack
+                  position="absolute"
+                  top={5}
+                  left={5}
+                  spacing={2}
+                  zIndex={3}
                 >
-                  <Image src={image} w="100%" h="100%" objectFit="cover" />
-                  {selectedIndex === index && (
-                    <Box
-                      position="absolute"
-                      inset={0}
-                      border="2px solid"
-                      borderColor="brand.400"
-                      borderRadius="xl"
-                      pointerEvents="none"
-                    />
+                  {listing.is_new && (
+                    <Badge
+                      borderRadius="full"
+                      px={4}
+                      py={1.5}
+                      bg="brand.400"
+                      color="white"
+                      fontSize="sm"
+                    >
+                      NOVO
+                    </Badge>
                   )}
-                </Box>
-              ))}
-            </Flex>
 
-            <Stack p={7} spacing={7}>
-              <Box>
-                <Text fontSize="2xl" fontWeight="bold" mb={3}>
-                  {listing.title}
-                </Text>
-                <HStack color="gray.400" spacing={2}>
-                  <Icon as={FiMapPin} />
-                  <Text>{listing.neighborhood}</Text>
+                  {listing.is_reduced && (
+                    <Badge
+                      borderRadius="full"
+                      px={4}
+                      py={1.5}
+                      bg="red.500"
+                      color="white"
+                      fontSize="sm"
+                    >
+                      REDUZIU
+                    </Badge>
+                  )}
+
+                  {listing.is_rented && (
+                    <Badge
+                      borderRadius="full"
+                      px={4}
+                      py={1.5}
+                      bg="purple.500"
+                      color="white"
+                      fontSize="sm"
+                    >
+                      ALUGADO
+                    </Badge>
+                  )}
+                </HStack>
+
+                {/* CLOSE */}
+
+                <IconButton
+                  aria-label="Fechar"
+                  icon={<FiX />}
+                  position="absolute"
+                  top={5}
+                  right={5}
+                  borderRadius="full"
+                  size="lg"
+                  bg="blackAlpha.500"
+                  color="white"
+                  zIndex={3}
+                  _hover={{
+                    bg: "blackAlpha.700"
+                  }}
+                  onClick={onClose}
+                />
+
+                {/* PREVIOUS */}
+
+                <IconButton
+                  aria-label="Imagem anterior"
+                  icon={<FiChevronLeft />}
+                  position="absolute"
+                  left={4}
+                  top="50%"
+                  transform="translateY(-50%)"
+                  borderRadius="full"
+                  bg="blackAlpha.600"
+                  color="white"
+                  zIndex={3}
+                  _hover={{
+                    bg: "blackAlpha.700"
+                  }}
+                  onClick={previousImage}
+                />
+
+                {/* NEXT */}
+
+                <IconButton
+                  aria-label="Próxima imagem"
+                  icon={<FiChevronRight />}
+                  position="absolute"
+                  right={4}
+                  top="50%"
+                  transform="translateY(-50%)"
+                  borderRadius="full"
+                  bg="blackAlpha.600"
+                  color="white"
+                  zIndex={3}
+                  _hover={{
+                    bg: "blackAlpha.700"
+                  }}
+                  onClick={nextImage}
+                />
+
+                {/* PRICE */}
+
+                <Box
+                  position="absolute"
+                  right={5}
+                  bottom={5}
+                  px={5}
+                  py={3}
+                  borderRadius="2xl"
+                  bg="rgba(0,0,0,0.72)"
+                  backdropFilter="blur(12px)"
+                  zIndex={3}
+                  maxW="85%"
+                >
+                  <Text
+                    color="white"
+                    fontWeight="black"
+                    lineHeight="1"
+                    fontSize={{
+                      base: "3xl",
+                      md: "5xl"
+                    }}
+                  >
+                    {listing.price}
+                  </Text>
+                </Box>
+              </Box>
+
+              {/* THUMBNAILS */}
+
+              <Box position="relative" zIndex={2} bg="#050816">
+                <HStack
+                  ref={thumbnailsRef}
+                  px={5}
+                  py={4}
+                  spacing={3}
+                  overflowX="auto"
+                  overflowY="hidden"
+                  align="stretch"
+                  minH="92px"
+                  css={{
+                    WebkitOverflowScrolling: "touch",
+
+                    "&::-webkit-scrollbar": {
+                      height: "5px"
+                    },
+
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "rgba(255,255,255,0.12)",
+
+                      borderRadius: "999px"
+                    }
+                  }}
+                >
+                  {images.map((image, index) => (
+                    <Box
+                      key={image}
+                      minW="110px"
+                      w="110px"
+                      h="82px"
+                      borderRadius="2xl"
+                      overflow="hidden"
+                      cursor="pointer"
+                      flexShrink={0}
+                      position="relative"
+                      border="2px solid"
+                      borderColor={
+                        selectedIndex === index ? "brand.400" : "whiteAlpha.100"
+                      }
+                      transition="0.2s"
+                      bg="gray.800"
+                      onClick={() => setSelectedIndex(index)}
+                    >
+                      <Image
+                        src={image}
+                        w="100%"
+                        h="100%"
+                        objectFit="cover"
+                        display="block"
+                      />
+
+                      {selectedIndex === index && (
+                        <Box
+                          position="absolute"
+                          inset={0}
+                          bg="
+                              rgba(
+                                59,
+                                130,
+                                246,
+                                0.18
+                              )
+                            "
+                          pointerEvents="none"
+                        />
+                      )}
+                    </Box>
+                  ))}
                 </HStack>
               </Box>
 
-              <Flex gap={4} flexWrap="wrap">
-                <ListingInfoCard
-                  icon={FiHome}
-                  label="Quartos"
-                  value={listing.bedrooms}
-                />
-                <ListingInfoCard
-                  icon={FaBath}
-                  label="Banheiros"
-                  value={listing.bathrooms}
-                />
-                <ListingInfoCard
-                  icon={TbRulerMeasure}
-                  label="Área"
-                  value={`${listing.area}m²`}
-                />
-              </Flex>
+              {/* CONTENT */}
 
-              <Box bg="glass" borderRadius="2xl" p={5}>
-                <Text color="gray.400" fontSize="sm" mb={2}>
-                  Imobiliária
-                </Text>
-                <Text fontWeight="bold" fontSize="lg">
-                  {listing.provider}
-                </Text>
-              </Box>
+              <Stack px={7} pt={7} pb={12} spacing={7}>
+                {/* TITLE */}
 
-              {detailsLoading ? (
-                <>
-                  <Skeleton height="220px" borderRadius="xl" />
-                  <Skeleton height="16px" mt={4} w="40%" />
-                </>
-              ) : detailsError ? (
-                <Box
-                  bg="surfaceSecondary"
-                  borderRadius="2xl"
-                  p={4}
-                  border="1px solid"
-                  borderColor="border"
-                >
-                  <Heading size="sm" mb={2}>
-                    Erro ao carregar dados
-                  </Heading>
-                  <Text color="gray.400" mb={3}>
-                    {String(detailsError)}
+                <Box>
+                  <Text
+                    fontSize="2xl"
+                    fontWeight="black"
+                    lineHeight="1.4"
+                    mb={3}
+                  >
+                    {listing.title}
                   </Text>
-                  <Button onClick={() => refetchDetails()}>
-                    Tentar novamente
-                  </Button>
+
+                  {listing.neighborhood && (
+                    <HStack color="gray.400" spacing={2}>
+                      <Icon as={FiMapPin} />
+
+                      <Text>{listing.neighborhood}</Text>
+                    </HStack>
+                  )}
                 </Box>
-              ) : (
-                (() => {
-                  const price_history = details?.price_history ?? []
-                  const timeline = details?.timeline ?? []
 
-                  return (
-                    <>
-                      {price_history && price_history.length > 1 && (
-                        <PriceHistoryChart data={price_history} />
-                      )}
-                      {timeline && timeline.length > 0 && (
-                        <ListingTimeline items={timeline} />
-                      )}
-                    </>
-                  )
-                })()
-              )}
+                {/* INFO CARDS */}
 
-              {listing.is_reduced && listing.old_price && (
-                <Box
-                  bg="rgba(255,0,0,0.08)"
-                  border="1px solid rgba(255,0,0,0.7)"
-                  borderRadius="2xl"
-                  p={5}
-                >
+                <Flex gap={4} flexWrap="wrap">
+                  <ListingInfoCard
+                    icon={FiHome}
+                    label="Quartos"
+                    value={listing.bedrooms}
+                  />
+
+                  <ListingInfoCard
+                    icon={FaBath}
+                    label="Banheiros"
+                    value={listing.bathrooms}
+                  />
+
+                  <ListingInfoCard
+                    icon={TbRulerMeasure}
+                    label="Área"
+                    value={`${listing.area}m²`}
+                  />
+                </Flex>
+
+                {/* PROVIDER */}
+
+                <Box bg="glass" borderRadius="2xl" p={5}>
                   <Text color="gray.400" fontSize="sm" mb={2}>
-                    Preço anterior
+                    Imobiliária
                   </Text>
-                  <Flex justify="space-between" align="center">
-                    <Text textDecoration="line-through" color="red.300">
-                      {listing.old_price}
-                    </Text>
-                    <Badge
-                      borderRadius="full"
-                      px={3}
-                      py={1}
-                      bg="rgba(34,197,94,0.7)"
-                      color="white"
-                    >
-                      {listing.price_difference}
-                    </Badge>
-                  </Flex>
-                </Box>
-              )}
 
-              <Link
-                href={listing.url}
-                isExternal
-                _hover={{ textDecoration: "none" }}
-              >
-                <Button
-                  w="100%"
-                  size="lg"
-                  colorScheme="blue"
-                  borderRadius="xl"
-                  rightIcon={<FiExternalLink />}
+                  <Text fontWeight="bold" fontSize="lg">
+                    {listing.provider}
+                  </Text>
+                </Box>
+
+                {/* DETAILS */}
+
+                {detailsLoading ? (
+                  <>
+                    <Skeleton height="220px" borderRadius="xl" />
+
+                    <Skeleton height="16px" mt={4} w="40%" />
+                  </>
+                ) : detailsError ? (
+                  <Box
+                    bg="surfaceSecondary"
+                    borderRadius="2xl"
+                    p={4}
+                    border="1px solid"
+                    borderColor="border"
+                  >
+                    <Heading size="sm" mb={2}>
+                      Erro ao carregar dados
+                    </Heading>
+
+                    <Text color="gray.400" mb={3}>
+                      {String(detailsError)}
+                    </Text>
+
+                    <Button onClick={() => refetchDetails()}>
+                      Tentar novamente
+                    </Button>
+                  </Box>
+                ) : (
+                  (() => {
+                    const price_history = details?.price_history ?? []
+
+                    const timeline = details?.timeline ?? []
+
+                    return (
+                      <>
+                        {price_history.length > 1 && (
+                          <PriceHistoryChart data={price_history} />
+                        )}
+
+                        {timeline.length > 0 && (
+                          <ListingTimeline items={timeline} />
+                        )}
+                      </>
+                    )
+                  })()
+                )}
+
+                {/* PRICE REDUCTION */}
+
+                {listing.is_reduced && listing.old_price && (
+                  <Box
+                    bg="
+                        rgba(
+                          255,
+                          0,
+                          0,
+                          0.08
+                        )
+                      "
+                    border="
+                        1px solid
+                        rgba(
+                          255,
+                          0,
+                          0,
+                          0.18
+                        )
+                      "
+                    borderRadius="2xl"
+                    p={5}
+                  >
+                    <Text color="gray.400" fontSize="sm" mb={2}>
+                      Preço anterior
+                    </Text>
+
+                    <Flex justify="space-between" align="center">
+                      <Text textDecoration="line-through" color="red.300">
+                        {listing.old_price}
+                      </Text>
+
+                      <Badge
+                        borderRadius="full"
+                        px={3}
+                        py={1}
+                        bg="green.500"
+                        color="white"
+                      >
+                        {listing.price_difference}
+                      </Badge>
+                    </Flex>
+                  </Box>
+                )}
+
+                {/* BUTTON */}
+
+                <Link
+                  href={listing.url}
+                  isExternal
+                  _hover={{
+                    textDecoration: "none"
+                  }}
                 >
-                  Abrir anúncio
-                </Button>
-              </Link>
-            </Stack>
+                  <Button
+                    w="100%"
+                    size="lg"
+                    colorScheme="blue"
+                    variant="solid"
+                    borderRadius="xl"
+                    rightIcon={<FiExternalLink />}
+                  >
+                    Abrir anúncio
+                  </Button>
+                </Link>
+              </Stack>
+            </VStack>
           </DrawerBody>
         </DrawerContent>
       </Drawer>

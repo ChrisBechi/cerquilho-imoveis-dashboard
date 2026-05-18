@@ -239,12 +239,6 @@ function ListingCard({
           <Flex
             position="absolute"
             inset={0}
-            bgGradient="linear(to-t, rgba(0,0,0,0.75), transparent)"
-          />
-
-          <Flex
-            position="absolute"
-            inset={0}
             justify="space-between"
             align="start"
             top={4}
@@ -298,10 +292,12 @@ function ListingCard({
               {listing.title}
             </Text>
 
-            <HStack color="gray.400" spacing={2} fontSize="sm">
-              <Icon as={FiMapPin} />
-              <Text>{listing.neighborhood}</Text>
-            </HStack>
+            {listing.neighborhood && (
+              <HStack color="gray.400" spacing={2} fontSize="sm">
+                <Icon as={FiMapPin} />
+                <Text>{listing.neighborhood}</Text>
+              </HStack>
+            )}
 
             <Text color="gray.500" fontSize="sm">
               {listing.provider}
@@ -322,6 +318,7 @@ function ListingCard({
               <Button
                 w="100%"
                 size="lg"
+                variant="solid"
                 colorScheme="blue"
                 borderRadius="xl"
                 rightIcon={<FiExternalLink />}
