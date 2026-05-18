@@ -63,6 +63,10 @@ export default function ExploreListingsSection() {
     }
   }, [activeTab, favoriteListings, isFavorite, listings])
 
+  if (!listings.length) {
+    return null
+  }
+
   return (
     <Box>
       <HStack
