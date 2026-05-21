@@ -179,7 +179,13 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md" blockScrollOnMount>
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={onClose}
+        size="md"
+        blockScrollOnMount
+      >
         <DrawerOverlay />
 
         <DrawerContent bg="#050816">
