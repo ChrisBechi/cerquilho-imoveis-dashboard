@@ -15,6 +15,17 @@ CREATE POLICY allow_select_public_listing_events ON public.listing_events
   FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS allow_update_public_listing_events ON public.listing_events;
+CREATE POLICY allow_update_public_listing_events ON public.listing_events
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS allow_delete_public_listing_events ON public.listing_events;
+CREATE POLICY allow_delete_public_listing_events ON public.listing_events
+  FOR DELETE
+  USING (true);
+
 -- listing_images
 ALTER TABLE IF EXISTS public.listing_images ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS allow_select_public_listing_images ON public.listing_images;

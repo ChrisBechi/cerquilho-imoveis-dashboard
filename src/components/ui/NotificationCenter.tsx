@@ -13,18 +13,116 @@ import {
   VStack,
   Image
 } from "@chakra-ui/react"
-import { FiBell } from "react-icons/fi"
+import { FiBell, FiX } from "react-icons/fi"
+import { memo } from "react"
 import { useNotifications } from "../../context/NotificationsContext"
 
-export default function NotificationCenter() {
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-    removeNotification,
-    clearNotifications
-  } = useNotifications()
+const SCROLLBAR_STYLES = {
+  "&::-webkit-scrollbar": {
+    width: "8px",
+    background: "transparent"
+  },
+  "&::-webkit-scrollbar-track": {
+    background: "rgba(255,255,255,0.05)",
+    borderRadius: "999px"
+  },
+  "&::-webkit-scrollbar-thumb": {
+    background: "rgba(255,255,255,0.16)",
+    borderRadius: "999px"
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    background: "rgba(255,255,255,0.28)"
+  }
+}
+
+function formatTimeAgo(dateString: string): string {
+  const now = new Date()
+  const date = new Date(dateString)
+  const diffMs = now.getTime() - date.getTime()
+
+  const minute = 1000 * 60
+  const hour = minute * 60
+  const day = hour * 24
+  const month = day * 30
+  const year = day * 365
+
+  if (diffMs < minute) return "Agora"
+  if (diffMs < hour)
+    return `${Math.floor(diffMs / minute)} minuto${Math.floor(diffMs / minute) === 1 ? "" : "s"}`
+  if (diffMs < day)
+    return `${Math.floor(diffMs / hour)} hora${Math.floor(diffMs / hour) === 1 ? "" : "s"}`
+  if (diffMs < month)
+    return `${Math.floor(diffMs / day)} dia${Math.floor(diffMs / day) === 1 ? "" : "s"}`
+  if (diffMs < year)
+    return `${Math.floor(diffMs / month)} mês${Math.floor(diffMs / month) === 1 ? "" : "es"}`
+  return `${Math.floor(diffMs / year)} ano${Math.floor(diffMs / year) === 1 ? "" : "s"}`
+}
+
+const NotificationSkeleton = memo(() => (
+  <Box px={4} py={3} borderBottom="1px solid" borderBottomColor="border">
+    <Box height="16px" bg="gray.700" borderRadius="md" mb={2} />
+    <Box height="12px" bg="gray.700" borderRadius="md" mb={2} w="80%" />
+    <Box height="10px" bg="gray.600" borderRadius="md" w="40%" />
+  </Box>
+))
+
+const NotificationItem = memo(
+  ({
+    notification,
+    onMarkAsRead
+  }: {
+    notification: any
+    onMarkAsRead: (id: string) => void
+  }) => (
+    <Box
+      position="relative"
+      px={4}
+      py={3}
+      borderBottom="1px solid"
+      borderBottomColor="border"
+    >
+      <IconButton
+        aria-label="Marcar como lida"
+        icon={<FiX />}
+        variant="ghost"
+        size="sm"
+        position="absolute"
+        top="0px"
+        right="0px"
+        onClick={() => onMarkAsRead(notification.id)}
+      />
+      <HStack align="start" spacing={3}>
+        {notification.thumbnail && (
+          <Image
+            src={notification.thumbnail}
+            w="52px"
+            h="52px"
+            objectFit="cover"
+            borderRadius="md"
+            loading="lazy"
+          />
+        )}
+        <Box flex={1}>
+          <Text fontWeight="bold">{notification.title}</Text>
+          {notification.message && (
+            <Text color="gray.400" fontSize="sm" mb={1}>
+              {notification.message}
+            </Text>
+          )}
+          <Text color="gray.500" fontSize="xs">
+            {formatTimeAgo(notification.createdAt)}
+          </Text>
+        </Box>
+      </HStack>
+    </Box>
+  )
+)
+
+const LOADING_SKELETONS = Array.from({ length: 3 }, (_, i) => i)
+
+const NotificationCenter = memo(function NotificationCenter() {
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } =
+    useNotifications()
 
   return (
     <Popover placement="bottom-end">
@@ -53,104 +151,81 @@ export default function NotificationCenter() {
         borderRadius="2xl"
         overflow="hidden"
         w="360px"
+        maxH="60vh"
         boxShadow="card"
       >
         <PopoverArrow bg="surfaceSecondary" />
         <PopoverBody p={0}>
           <FlexHeader
-            notifications={notifications}
-            markAllAsRead={markAllAsRead}
-            clearNotifications={clearNotifications}
+            onMarkAllAsRead={markAllAsRead}
+            hasNotifications={notifications.length > 0}
           />
 
-          <VStack align="stretch" spacing={0}>
-            {notifications.length === 0 ? (
-              <Box p={5}>
-                <Text color="gray.400">Nenhuma notificação</Text>
-              </Box>
-            ) : (
-              <Stack spacing={0}>
-                {notifications.map((n) => (
-                  <Box
-                    key={n.id}
-                    px={4}
-                    py={3}
-                    borderBottom="1px solid"
-                    borderBottomColor="border"
-                  >
-                    <HStack align="start" spacing={3}>
-                      {n.thumbnail && (
-                        <Image
-                          src={n.thumbnail}
-                          w="52px"
-                          h="52px"
-                          objectFit="cover"
-                          borderRadius="md"
-                        />
-                      )}
-                      <Box flex={1}>
-                        <Text fontWeight="bold">{n.title}</Text>
-                        {n.message && (
-                          <Text color="gray.400" fontSize="sm">
-                            {n.message}
-                          </Text>
-                        )}
-                        <HStack mt={2} spacing={2}>
-                          <Button size="sm" onClick={() => markAsRead(n.id)}>
-                            Marcar como lida
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => removeNotification(n.id)}
-                          >
-                            Remover
-                          </Button>
-                        </HStack>
-                      </Box>
-                    </HStack>
-                  </Box>
-                ))}
-              </Stack>
-            )}
-          </VStack>
+          <Box maxH="calc(60vh - 92px)" overflowY="auto" sx={SCROLLBAR_STYLES}>
+            <VStack align="stretch" spacing={0}>
+              {isLoading ? (
+                LOADING_SKELETONS.map((idx) => (
+                  <NotificationSkeleton key={idx} />
+                ))
+              ) : notifications.length === 0 ? (
+                <Box p={5}>
+                  <Text color="gray.400">Nenhuma notificação</Text>
+                </Box>
+              ) : (
+                <Stack spacing={0}>
+                  {notifications.map((n) => (
+                    <NotificationItem
+                      key={n.id}
+                      notification={n}
+                      onMarkAsRead={markAsRead}
+                    />
+                  ))}
+                </Stack>
+              )}
+            </VStack>
+          </Box>
         </PopoverBody>
       </PopoverContent>
     </Popover>
   )
-}
+})
 
-function FlexHeader({ notifications, markAllAsRead, clearNotifications }: any) {
+const FlexHeader = memo(function FlexHeader({
+  onMarkAllAsRead,
+  hasNotifications
+}: {
+  onMarkAllAsRead: () => void
+  hasNotifications: boolean
+}) {
   return (
-    <VStack
+    <HStack
       px={5}
       py={4}
       borderBottom="1px solid"
       borderBottomColor="border"
-      textAlign="left"
       display="flex"
       w="100%"
-      alignItems="flex-start"
+      alignItems="center"
+      justifyContent="space-between"
     >
       <Text fontWeight="bold" fontSize="lg">
         Notificações
       </Text>
-
-      {notifications.length > 0 && (
-        <HStack spacing={2}>
-          <Button size="sm" onClick={markAllAsRead}>
-            Marcar todas
-          </Button>
-          <Button size="sm" variant="ghost" onClick={clearNotifications}>
-            Limpar
-          </Button>
-        </HStack>
-      )}
-    </VStack>
+      <Button
+        size="sm"
+        variant="ghost"
+        color="textSecondary"
+        _hover={{ bg: "glassHover" }}
+        onClick={onMarkAllAsRead}
+        isDisabled={!hasNotifications}
+      >
+        Marcar como lido
+      </Button>
+    </HStack>
   )
-}
+})
 
-function FlexBadge({ count }: { count: number }) {
+const FlexBadge = memo(function FlexBadge({ count }: { count: number }) {
   return (
     <Box
       position="absolute"
@@ -173,4 +248,6 @@ function FlexBadge({ count }: { count: number }) {
       {count > 99 ? "99+" : count}
     </Box>
   )
-}
+})
+
+export default NotificationCenter

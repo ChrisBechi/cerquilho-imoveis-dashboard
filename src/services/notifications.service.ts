@@ -17,10 +17,42 @@ export interface Notification {
   listingId?: number
   thumbnail?: string
   createdAt: string
-  read?: boolean
+  is_read?: boolean
 }
 
 type Listener = (n: Notification) => void
+
+function normalizeNotificationRow(row: any): Notification {
+  return {
+    id: String(row?.id),
+    type: row?.type,
+    title: row?.title ?? "Notificação",
+    message: row?.message ?? row?.description ?? undefined,
+    listingId: row?.listing_id ?? row?.listingId,
+    thumbnail: row?.thumbnail ?? undefined,
+    createdAt: row?.created_at ?? new Date().toISOString(),
+    is_read: Boolean(row?.is_read)
+  }
+}
+
+async function enrichNotificationWithListing(notification: Notification) {
+  if (!notification.listingId) {
+    return notification
+  }
+
+  try {
+    const rows = await listingsService.listByIds([notification.listingId])
+    const listingInfo = normalizeListingInfo(rows[0] ?? {})
+
+    return {
+      ...notification,
+      title: notification.title ?? listingInfo.title,
+      thumbnail: listingInfo.thumbnail ?? notification.thumbnail
+    }
+  } catch (e) {
+    return notification
+  }
+}
 
 let channel: ReturnType<typeof supabase.channel> | null = null
 
@@ -50,6 +82,10 @@ export const notificationsService = {
         console.log("[REALTIME EVENT] listing_events INSERT", payload)
 
         const record = payload.new ?? payload.record ?? payload
+        if (record.is_read !== true) {
+          return
+        }
+
         const type: NotificationType = record.type
 
         let base: Partial<Notification> = {
@@ -67,7 +103,7 @@ export const notificationsService = {
         }
 
         const notification: Notification = {
-          id: `le:${Date.now()}:${Math.random().toString(36).slice(2, 9)}`,
+          id: String(record.id),
           type,
           title:
             record.title ?? (type === "created" ? "Novo imóvel" : "Evento"),
@@ -75,111 +111,95 @@ export const notificationsService = {
           listingId: record.listing_id,
           thumbnail: base.thumbnail,
           createdAt: base.createdAt as string,
-          read: false
+          is_read: true
         }
 
         emit(notification)
       }
     )
 
-    channel.on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "favorites" },
-      async (payload: any) => {
-        console.log("[REALTIME EVENT] favorites INSERT", payload)
-
-        const record = payload.new ?? payload.record ?? payload
-        const listingId = record.listing_id
-
-        let listingInfo: Partial<Notification> = {}
-        if (listingId) {
-          try {
-            const rows = await listingsService.listByIds([listingId])
-            listingInfo = normalizeListingInfo(rows[0] ?? {})
-          } catch (e) {}
-        }
-
-        const n: Notification = {
-          id: `fav:add:${Date.now()}:${Math.random().toString(36).slice(2, 9)}`,
-          type: "favorite_added",
-          title: listingInfo.title ?? "Favoritado",
-          message: "Imóvel adicionado aos favoritos",
-          listingId,
-          thumbnail: listingInfo.thumbnail,
-          createdAt: new Date().toISOString(),
-          read: false
-        }
-
-        emit(n)
-      }
-    )
-
-    channel.on(
-      "postgres_changes",
-      { event: "DELETE", schema: "public", table: "favorites" },
-      async (payload: any) => {
-        console.log("[REALTIME EVENT] favorites DELETE", payload)
-
-        const record = payload.old ?? payload.record ?? payload
-        const listingId = record.listing_id
-
-        let listingInfo: Partial<Notification> = {}
-        if (listingId) {
-          try {
-            const rows = await listingsService.listByIds([listingId])
-            listingInfo = normalizeListingInfo(rows[0] ?? {})
-          } catch (e) {}
-        }
-
-        const n: Notification = {
-          id: `fav:rm:${Date.now()}:${Math.random().toString(36).slice(2, 9)}`,
-          type: "favorite_removed",
-          title: listingInfo.title ?? "Desfavoritado",
-          message: "Imóvel removido dos favoritos",
-          listingId,
-          thumbnail: listingInfo.thumbnail,
-          createdAt: new Date().toISOString(),
-          read: false
-        }
-
-        emit(n)
-      }
-    )
-
-    channel.on(
-      "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "listings" },
-      async (payload: any) => {
-        console.log("[REALTIME EVENT] listings UPDATE", payload)
-
-        const oldRec = payload.old ?? payload.previous ?? {}
-        const rec = payload.new ?? payload.record ?? payload
-
-        // detect rented change
-        if (!oldRec.rented_at && rec.rented_at) {
-          let listingInfo: Partial<Notification> = {}
-          try {
-            const rows = await listingsService.listByIds([rec.id])
-            listingInfo = normalizeListingInfo(rows[0] ?? {})
-          } catch (e) {}
-
-          const n: Notification = {
-            id: `lst:rented:${Date.now()}:${Math.random().toString(36).slice(2, 9)}`,
-            type: "rented",
-            title: listingInfo.title ?? "Imóvel alugado",
-            message: "Imóvel marcado como alugado",
-            listingId: rec.id,
-            thumbnail: listingInfo.thumbnail,
-            createdAt: new Date().toISOString(),
-            read: false
-          }
-
-          emit(n)
-        }
-      }
-    )
-
     await channel.subscribe()
+  },
+
+  async getUnreadNotifications() {
+    const response = await supabase
+      .from("listing_events")
+      .select("id, type, title, description, listing_id, created_at, is_read")
+      .eq("is_read", true)
+      .order("created_at", { ascending: false })
+
+    if (response.error) throw response.error
+
+    const notifications = (response.data ?? []).map((row: any) =>
+      normalizeNotificationRow(row)
+    )
+
+    const enrichedNotifications = await Promise.all(
+      notifications.map((notification) =>
+        enrichNotificationWithListing(notification)
+      )
+    )
+
+    return enrichedNotifications
+  },
+
+  async markAsRead(notificationId: string) {
+    const response = await supabase
+      .from("listing_events")
+      .update({ is_read: false })
+      .eq("id", notificationId)
+      .select("id, type, title, description, listing_id, created_at, is_read")
+      .maybeSingle()
+
+    if (response.error) throw response.error
+
+    if (!response.data) {
+      throw new Error("Notificação não encontrada")
+    }
+
+    return normalizeNotificationRow(response.data)
+  },
+
+  async markAllAsRead() {
+    const response = await supabase
+      .from("listing_events")
+      .update({ is_read: false })
+      .eq("is_read", true)
+      .select("id, type, title, description, listing_id, created_at, is_read")
+
+    if (response.error) throw response.error
+
+    return (response.data ?? []).map((row: any) =>
+      normalizeNotificationRow(row)
+    )
+  },
+
+  async createEvent(
+    event: Omit<Notification, "id" | "createdAt"> & {
+      createdAt?: string
+    }
+  ) {
+    const response = await supabase
+      .from("listing_events")
+      .insert({
+        type: event.type,
+        title: event.title,
+        description: event.message,
+        listing_id: event.listingId,
+        created_at: event.createdAt ?? new Date().toISOString(),
+        is_read: event.is_read ?? true
+      })
+      .select("id, type, title, description, listing_id, created_at, is_read")
+      .maybeSingle()
+
+    if (response.error) throw response.error
+    if (!response.data) {
+      throw new Error("Falha ao criar evento de notificação")
+    }
+
+    return enrichNotificationWithListing(
+      normalizeNotificationRow(response.data)
+    )
   },
 
   stop() {
@@ -202,18 +222,19 @@ export const notificationsService = {
       listingInfo = normalizeListingInfo(rows[0] ?? {})
     } catch (e) {}
 
-    const n: Notification = {
-      id: `localfav:${added ? "add" : "rm"}:${Date.now()}:${Math.random().toString(36).slice(2, 9)}`,
+    const event: Omit<Notification, "id" | "createdAt"> & {
+      createdAt: string
+    } = {
       type: added ? "favorite_added" : "favorite_removed",
       title: listingInfo.title ?? (added ? "Favoritado" : "Desfavoritado"),
       message: added ? "Adicionado aos favoritos" : "Removido dos favoritos",
       listingId,
       thumbnail: listingInfo.thumbnail,
       createdAt: new Date().toISOString(),
-      read: false
+      is_read: true
     }
 
-    emit(n)
+    await notificationsService.createEvent(event).catch(() => {})
   }
 }
 

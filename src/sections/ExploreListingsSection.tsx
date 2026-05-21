@@ -63,6 +63,11 @@ export default function ExploreListingsSection() {
     }
   }, [activeTab, favoriteListings, isFavorite, listings])
 
+  const limitedListings = useMemo(
+    () => filteredListings.slice(0, 5),
+    [filteredListings]
+  )
+
   if (!listings.length) {
     return null
   }
@@ -147,7 +152,7 @@ export default function ExploreListingsSection() {
         />
       ) : (
         <ListingsGrid
-          listings={filteredListings}
+          listings={limitedListings}
           isFavorite={(id) => isFavorite(id)}
           onToggleFavorite={toggleFavorite}
         />

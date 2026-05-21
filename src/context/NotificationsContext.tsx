@@ -4,19 +4,19 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState
+  useRef
 } from "react"
 import { useToast } from "@chakra-ui/react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import notificationsService from "../services/notifications.service"
 import type { Notification } from "../services/notifications.service"
 
 interface NotificationsContextData {
   notifications: Notification[]
   unreadCount: number
-  markAsRead: (id: string) => void
-  markAllAsRead: () => void
-  removeNotification: (id: string) => void
-  clearNotifications: () => void
+  isLoading: boolean
+  markAsRead: (id: string) => Promise<void>
+  markAllAsRead: () => Promise<void>
 }
 
 const NotificationsContext = createContext({} as NotificationsContextData)
@@ -26,16 +26,35 @@ export function NotificationsProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [notifications, setNotifications] = useState<Notification[]>([])
   const toast = useToast()
+  const queryClient = useQueryClient()
+
+  const { data: notifications = [], isLoading } = useQuery<
+    Notification[],
+    Error
+  >({
+    queryKey: ["notifications", "unread"],
+    queryFn: notificationsService.getUnreadNotifications,
+    staleTime: 1000 * 60,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  })
+
+  const unsubRef = useRef<(() => void) | null>(null)
+  const notificationServiceRef = useRef(false)
 
   useEffect(() => {
+    if (notificationServiceRef.current) return
+    notificationServiceRef.current = true
+
     notificationsService.start()
 
-    const unsub = notificationsService.on((n) => {
-      setNotifications((prev) => [n, ...prev])
+    unsubRef.current = notificationsService.on((n) => {
+      queryClient.setQueryData<Notification[]>(
+        ["notifications", "unread"],
+        (prev = []) => [n, ...prev]
+      )
 
-      // show toast for important events
       let title = n.title
       let description = n.message ?? undefined
 
@@ -70,51 +89,53 @@ export function NotificationsProvider({
     })
 
     return () => {
-      unsub()
+      if (unsubRef.current) {
+        unsubRef.current()
+      }
       notificationsService.stop()
+      notificationServiceRef.current = false
     }
-  }, [toast])
-
-  const markAsRead = useCallback((id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    )
   }, [])
 
-  const markAllAsRead = useCallback(() => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-  }, [])
+  const markAsRead = useCallback(
+    async (id: string) => {
+      try {
+        await notificationsService.markAsRead(id)
+      } catch (error) {
+        console.error("Erro ao marcar notificação como lida:", error)
+        // Ainda remove da UI mesmo com erro, mas loga para debug
+      }
 
-  const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
-  }, [])
-
-  const clearNotifications = useCallback(() => {
-    setNotifications([])
-  }, [])
-
-  const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.read).length,
-    [notifications]
+      queryClient.setQueryData<Notification[]>(
+        ["notifications", "unread"],
+        (prev = []) => prev.filter((notification) => notification.id !== id)
+      )
+    },
+    [queryClient]
   )
+
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await notificationsService.markAllAsRead()
+    } catch (error) {
+      console.error("Erro ao marcar todas as notificações como lidas:", error)
+      // Ainda limpa a UI mesmo com erro, mas loga para debug
+    }
+
+    queryClient.setQueryData<Notification[]>(["notifications", "unread"], [])
+  }, [queryClient])
+
+  const unreadCount = useMemo(() => notifications.length, [notifications])
 
   const value = useMemo(
     () => ({
       notifications,
       unreadCount,
+      isLoading,
       markAsRead,
-      markAllAsRead,
-      removeNotification,
-      clearNotifications
+      markAllAsRead
     }),
-    [
-      notifications,
-      unreadCount,
-      markAsRead,
-      markAllAsRead,
-      removeNotification,
-      clearNotifications
-    ]
+    [notifications, unreadCount, isLoading, markAsRead, markAllAsRead]
   )
 
   return (
