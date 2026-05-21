@@ -10,6 +10,7 @@ interface Props {
   isLoading?: boolean
   error?: string | Error | null
   onRetry?: () => void
+  onClick?: () => void
 }
 
 export default function KpiCard({
@@ -18,7 +19,8 @@ export default function KpiCard({
   icon,
   isLoading,
   error,
-  onRetry
+  onRetry,
+  onClick
 }: Props) {
   return (
     <StatCard
@@ -28,6 +30,10 @@ export default function KpiCard({
       isLoading={isLoading}
       error={error}
       onRetry={onRetry}
+      onClick={onClick}
+      cursor={onClick ? "pointer" : "default"}
+      transition="all 0.2s"
+      _hover={onClick ? { borderColor: "brand.500", boxShadow: "md" } : {}}
     />
   )
 }

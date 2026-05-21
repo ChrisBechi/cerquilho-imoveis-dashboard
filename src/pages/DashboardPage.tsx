@@ -1,19 +1,17 @@
 import { Divider, Grid, SimpleGrid } from "@chakra-ui/react"
 
-import {
-  FiDollarSign,
-  FiHome,
-  FiTrendingDown,
-  FiTrendingUp
-} from "react-icons/fi"
+import { FiDollarSign, FiHome, FiTrendingDown } from "react-icons/fi"
+import { ImPriceTags } from "react-icons/im"
+import { MdOutlineLocalPostOffice } from "react-icons/md"
+import { FiArrowUp } from "react-icons/fi"
 
 import KpiCard from "../components/KpiCard"
 
 import MainLayout from "../layouts/MainLayout"
 
 import useDashboardStats from "../hooks/useDashboardStats"
-import { useEffect } from "react"
-import { useToast } from "@chakra-ui/react"
+import { useEffect, useRef, useState } from "react"
+import { useToast, Button, Box } from "@chakra-ui/react"
 import DashboardHeader from "./DashboardHeader"
 import ExploreListingsSection from "../sections/ExploreListingsSection"
 import ReducedListingsSection from "../sections/ReducedListingsSection"
@@ -26,6 +24,12 @@ import ListingsDataGrid from "../components/listings/ListingsDataGrid"
 export default function DashboardPage() {
   const { data, isLoading, error, refetch } = useDashboardStats()
   const toast = useToast()
+  const [showScrollButton, setShowScrollButton] = useState(false)
+
+  const exploreRef = useRef<HTMLDivElement>(null)
+  const reducedRef = useRef<HTMLDivElement>(null)
+  const rentedRef = useRef<HTMLDivElement>(null)
+  const listingsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (error) {
@@ -37,6 +41,58 @@ export default function DashboardPage() {
       })
     }
   }, [error, toast])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (exploreRef.current) {
+        const elementPosition = exploreRef.current.getBoundingClientRect().top
+        setShowScrollButton(elementPosition < 0)
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }
+
+  const scrollToExplore = () => {
+    if (exploreRef.current) {
+      const elementPosition =
+        exploreRef.current.getBoundingClientRect().top + window.scrollY - 120
+      window.scrollTo({
+        top: elementPosition,
+        behavior: "smooth"
+      })
+    }
+  }
+
+  const scrollToReduced = () => {
+    if (reducedRef.current) {
+      const elementPosition =
+        reducedRef.current.getBoundingClientRect().top + window.scrollY - 120
+      window.scrollTo({
+        top: elementPosition,
+        behavior: "smooth"
+      })
+    }
+  }
+
+  const scrollToRented = () => {
+    if (rentedRef.current) {
+      const elementPosition =
+        rentedRef.current.getBoundingClientRect().top + window.scrollY - 120
+      window.scrollTo({
+        top: elementPosition,
+        behavior: "smooth"
+      })
+    }
+  }
 
   return (
     <MainLayout>
@@ -57,15 +113,17 @@ export default function DashboardPage() {
             isLoading={isLoading}
             error={error}
             onRetry={refetch}
+            onClick={scrollToExplore}
           />
 
           <KpiCard
             title="Novos"
             value={data?.newListings ?? 0}
-            icon={<FiHome />}
+            icon={<MdOutlineLocalPostOffice />}
             isLoading={isLoading}
             error={error}
             onRetry={refetch}
+            onClick={scrollToExplore}
           />
 
           <KpiCard
@@ -75,6 +133,7 @@ export default function DashboardPage() {
             isLoading={isLoading}
             error={error}
             onRetry={refetch}
+            onClick={scrollToExplore}
           />
 
           <KpiCard
@@ -84,15 +143,17 @@ export default function DashboardPage() {
             isLoading={isLoading}
             error={error}
             onRetry={refetch}
+            onClick={scrollToReduced}
           />
 
           <KpiCard
-            title="Aumentos"
-            value={data?.increasedPrices ?? 0}
-            icon={<FiTrendingUp />}
+            title="Alugados"
+            value={data?.rentedCount ?? 0}
+            icon={<ImPriceTags />}
             isLoading={isLoading}
             error={error}
             onRetry={refetch}
+            onClick={scrollToRented}
           />
         </Grid>
       </FadeIn>
@@ -110,19 +171,40 @@ export default function DashboardPage() {
           <AveragePriceChartSection />
         </SimpleGrid>
       </FadeIn>
-      <FadeIn delay={0.3}>
+      <FadeIn delay={0.3} ref={exploreRef}>
         <ExploreListingsSection />
       </FadeIn>
-      <FadeIn delay={0.4}>
+      <FadeIn delay={0.4} ref={reducedRef}>
         <ReducedListingsSection />
       </FadeIn>
-      <FadeIn delay={0.5}>
+      <FadeIn delay={0.5} ref={rentedRef}>
         <RentedListingsSection />
       </FadeIn>
       <Divider mt="4rem" borderColor="gray.600" />
-      <FadeIn delay={0.6}>
+      <FadeIn delay={0.6} ref={listingsRef}>
         <ListingsDataGrid />
       </FadeIn>
+
+      {showScrollButton && (
+        <Box position="fixed" bottom={8} right={8} zIndex={40}>
+          <Button
+            onClick={scrollToTop}
+            size="lg"
+            colorScheme="brand"
+            background="#041b2ee0"
+            border="1px solid white"
+            rounded="full"
+            boxShadow="lg"
+            transition="all 0.2s"
+            _hover={{
+              transform: "translateY(-2px)",
+              boxShadow: "xl"
+            }}
+          >
+            <FiArrowUp />
+          </Button>
+        </Box>
+      )}
     </MainLayout>
   )
 }

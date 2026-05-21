@@ -20,6 +20,10 @@ type ListingEventRow = {
   listing_id: number
   type: string
   created_at: string
+  old_price?: number | null
+  new_price?: number | null
+  old_price_label?: string | null
+  new_price_label?: string | null
 }
 
 type ListingImageRow = {
@@ -44,6 +48,16 @@ const getImageUrl = (image: ListingImageRow) => {
 const formatOldPrice = (price: number | null | undefined) => {
   if (price == null) return undefined
   return centsToBRL(price)
+}
+
+const getLatestHistoryPrice = (history: ListingPriceHistoryRow[]) => {
+  if (!history?.length) return undefined
+
+  const sortedHistory = [...history].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  )
+
+  return sortedHistory[0]?.price
 }
 
 const getOldPriceCents = (
@@ -78,6 +92,17 @@ const getPriceDifference = (
 
   const diff = Math.abs(oldPriceCents - currentPrice)
   return centsToBRL(diff)
+}
+
+const getPriceDropEvent = (events: ListingEventRow[]) => {
+  const dropEvents = events
+    .filter((event) => event.type === "price_drop")
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+
+  return dropEvents[0]
 }
 
 const getIsNew = (events: ListingEventRow[]) => {
@@ -124,9 +149,24 @@ export function normalizeListing(
   events: ListingEventRow[] = [],
   history: ListingPriceHistoryRow[] = []
 ): Listing {
-  const currentPrice = row.current_price ?? null
-  const oldPriceCents = getOldPriceCents(history, currentPrice)
+  const priceDropEvent = getPriceDropEvent(events)
+  const currentPriceFromEvent = priceDropEvent?.new_price ?? undefined
+  const oldPriceFromEvent = priceDropEvent?.old_price ?? undefined
+
+  const currentPrice =
+    row.current_price ??
+    currentPriceFromEvent ??
+    getLatestHistoryPrice(history) ??
+    null
+  const oldPriceCents =
+    oldPriceFromEvent ?? getOldPriceCents(history, currentPrice)
   const oldPrice = formatOldPrice(oldPriceCents)
+  const oldPriceNumeric =
+    oldPriceCents != null ? Math.round(oldPriceCents / 100) : undefined
+  const priceDropPercentage =
+    oldPriceCents != null && currentPrice != null && oldPriceCents > 0
+      ? Math.round(((oldPriceCents - currentPrice) / oldPriceCents) * 100)
+      : undefined
 
   return {
     id: row.id,
@@ -148,7 +188,9 @@ export function normalizeListing(
     is_reduced: getIsReduced(events),
     is_rented: row.rented_at != null,
     old_price: oldPrice,
+    old_price_numeric: oldPriceNumeric,
     price_difference: getPriceDifference(oldPriceCents, currentPrice),
+    price_drop_percentage: priceDropPercentage,
     url: row.url
   }
 }

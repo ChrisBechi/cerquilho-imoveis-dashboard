@@ -42,14 +42,16 @@ export default function ReducedListingsSection() {
           ? Array.from({ length: 4 }).map((_, idx) => (
               <Skeleton key={idx} height="220px" borderRadius="2xl" />
             ))
-          : reducedListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                isFavorite={isFavorite(listing.id.toString())}
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
+          : reducedListings
+              .slice(0, 8)
+              .map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  isFavorite={isFavorite(listing.id.toString())}
+                  onToggleFavorite={toggleFavorite}
+                />
+              ))}
       </Grid>
     </Box>
   )

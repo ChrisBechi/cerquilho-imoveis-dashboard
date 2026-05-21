@@ -19,14 +19,7 @@ import {
   Heading,
   useToast
 } from "@chakra-ui/react"
-import {
-  memo,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState
-} from "react"
+import { memo, useCallback, useDeferredValue, useMemo, useState } from "react"
 import { FiSearch } from "react-icons/fi"
 import type { Listing } from "../../types/listing"
 import useListings from "../../hooks/useListings"
@@ -110,6 +103,8 @@ export default function ListingsDataGrid() {
           return false
         })
 
+      const matchesNotRented = !listing.is_rented
+
       return (
         matchesSearch &&
         matchesProvider &&
@@ -117,7 +112,8 @@ export default function ListingsDataGrid() {
         matchesBathrooms &&
         matchesArea &&
         matchesPrice &&
-        matchesStatus
+        matchesStatus &&
+        matchesNotRented
       )
     })
 
@@ -147,10 +143,6 @@ export default function ListingsDataGrid() {
     sortBy,
     listings
   ])
-
-  useEffect(() => {
-    setVisibleCount(5)
-  }, [filteredListings])
 
   const visibleListings = filteredListings.slice(0, visibleCount)
   const hasActiveFilters =

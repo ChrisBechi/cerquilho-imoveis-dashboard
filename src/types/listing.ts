@@ -15,7 +15,9 @@ export interface Listing {
   is_reduced: boolean
   is_rented?: boolean
   old_price?: string
+  old_price_numeric?: number
   price_difference?: string
+  price_drop_percentage?: number
   url: string
 }
 
@@ -29,4 +31,8 @@ export interface ITimelineEvent {
   title: string
   description: string
   date: string
+  old_price?: number
+  new_price?: number
+  old_price_label?: string
+  new_price_label?: string
 }

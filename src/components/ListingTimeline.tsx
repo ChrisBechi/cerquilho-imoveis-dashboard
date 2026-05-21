@@ -1,6 +1,7 @@
 import { Box, Flex, Heading, Icon, Stack, Text } from "@chakra-ui/react"
 
 import { FiArrowDown, FiArrowUp, FiCheckCircle, FiClock } from "react-icons/fi"
+import { centsToBRL } from "../utils/formatters"
 
 interface TimelineItem {
   type: "created" | "price_drop" | "price_up" | "rented"
@@ -10,6 +11,14 @@ interface TimelineItem {
   description: string
 
   date: string
+
+  old_price?: number
+
+  new_price?: number
+
+  old_price_label?: string
+
+  new_price_label?: string
 }
 
 interface Props {
@@ -115,9 +124,36 @@ export default function ListingTimeline({ items }: Props) {
                   </Text>
                 </Flex>
 
-                <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                  {item.description}
-                </Text>
+                <Stack spacing={2}>
+                  <Text color="gray.400" fontSize="sm" lineHeight="1.6">
+                    {item.description}
+                  </Text>
+
+                  {(item.type === "price_drop" || item.type === "price_up") &&
+                  (item.old_price != null ||
+                    item.old_price_label ||
+                    item.new_price != null ||
+                    item.new_price_label) ? (
+                    <Text color="white" fontSize="sm" fontWeight="semibold">
+                      de{" "}
+                      <Text
+                        as="span"
+                        color="gray.300"
+                        textDecoration="line-through"
+                      >
+                        {item.old_price_label ??
+                          (item.old_price != null
+                            ? centsToBRL(item.old_price)
+                            : "--")}
+                      </Text>{" "}
+                      para{" "}
+                      {item.new_price_label ??
+                        (item.new_price != null
+                          ? centsToBRL(item.new_price)
+                          : "--")}
+                    </Text>
+                  ) : null}
+                </Stack>
               </Box>
             </Flex>
           )

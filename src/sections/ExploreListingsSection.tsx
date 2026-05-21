@@ -64,7 +64,7 @@ export default function ExploreListingsSection() {
   }, [activeTab, favoriteListings, isFavorite, listings])
 
   const limitedListings = useMemo(
-    () => filteredListings.slice(0, 5),
+    () => filteredListings.slice(0, 8),
     [filteredListings]
   )
 

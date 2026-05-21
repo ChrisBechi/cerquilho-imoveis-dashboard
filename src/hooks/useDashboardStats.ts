@@ -9,6 +9,7 @@ export type DashboardStats = {
   averagePrice: string
   reducedPrices: number
   increasedPrices: number
+  rentedCount: number
 }
 
 export default function useDashboardStats() {
@@ -24,7 +25,8 @@ export default function useDashboardStats() {
         newListings: data.newListings,
         averagePrice: centsToBRL(data.averagePrice),
         reducedPrices: data.reducedPrices,
-        increasedPrices: data.increasedPrices
+        increasedPrices: data.increasedPrices,
+        rentedCount: data.rentedCount
       }
     }
   })

@@ -166,12 +166,14 @@ function ListingsTable({
         <Table variant="simple">
           <Thead bg="rgba(255,255,255,0.03)">
             <Tr>
-              <Th py={5}>Imóvel</Th>
-              <Th>Provider</Th>
-              <Th>Preço</Th>
-              <Th>Infos</Th>
-              <Th>Status</Th>
-              <Th>Favorito</Th>
+              <Th color="gray.300" py={5}>
+                Imóvel
+              </Th>
+              <Th color="gray.300">Provider</Th>
+              <Th color="gray.300">Preço</Th>
+              <Th color="gray.300">Infos</Th>
+              <Th color="gray.300">Status</Th>
+              <Th color="gray.300">Favorito</Th>
               <Th />
             </Tr>
           </Thead>

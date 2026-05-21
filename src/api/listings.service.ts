@@ -10,7 +10,9 @@ async function fetchListingRelations(listingIds: number[]) {
       .in("listing_id", listingIds),
     supabase
       .from("listing_events")
-      .select("listing_id, type, created_at")
+      .select(
+        "listing_id, type, created_at, old_price, new_price, old_price_label, new_price_label"
+      )
       .in("listing_id", listingIds)
       .order("created_at", { ascending: false }),
     supabase
@@ -142,7 +144,9 @@ export const listingsService = {
   async getEvents(listingId: number) {
     const res = await supabase
       .from("listing_events")
-      .select("type, title, description, created_at")
+      .select(
+        "type, title, description, created_at, old_price, new_price, old_price_label, new_price_label"
+      )
       .eq("listing_id", listingId)
       .order("created_at", { ascending: false })
 

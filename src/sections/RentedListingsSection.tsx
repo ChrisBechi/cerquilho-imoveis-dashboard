@@ -49,14 +49,16 @@ export default function RentedListingsSection() {
           ? Array.from({ length: 4 }).map((_, idx) => (
               <Skeleton key={idx} height="220px" borderRadius="2xl" />
             ))
-          : rentedListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                isFavorite={isFavorite(listing.id.toString())}
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
+          : rentedListings
+              .slice(0, 8)
+              .map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  isFavorite={isFavorite(listing.id.toString())}
+                  onToggleFavorite={toggleFavorite}
+                />
+              ))}
       </Grid>
     </Box>
   )

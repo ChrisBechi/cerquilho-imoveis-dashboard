@@ -6,6 +6,7 @@ export interface DashboardSummaryDTO {
   averagePrice: number // in cents
   reducedPrices: number
   increasedPrices: number
+  rentedCount: number
 }
 
 export const dashboardService = {
@@ -23,7 +24,8 @@ export const dashboardService = {
       newListings: Number(row?.new_listings ?? 0),
       averagePrice: Number(row?.average_price ?? 0),
       reducedPrices: Number(row?.reduced_prices ?? 0),
-      increasedPrices: Number(row?.increased_prices ?? 0)
+      increasedPrices: Number(row?.increased_prices ?? 0),
+      rentedCount: Number(row?.rented_count ?? 0)
     }
 
     return summary

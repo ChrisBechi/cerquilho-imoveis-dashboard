@@ -13,6 +13,11 @@ import {
   Image,
   Link,
   Stack,
+  Stat,
+  StatArrow,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
   Text,
   useDisclosure,
   useToast,
@@ -22,6 +27,7 @@ import {
 } from "@chakra-ui/react"
 
 import { AnimatePresence, motion } from "framer-motion"
+import { MdOutlineRealEstateAgent } from "react-icons/md"
 
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -73,6 +79,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const selectedImage = images[selectedIndex]
+  const hasMultipleImages = images.length > 1
 
   const thumbnailsRef = useRef<HTMLDivElement>(null)
 
@@ -99,6 +106,18 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
   useEffect(() => {
     setSelectedIndex(0)
   }, [listing.id])
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+
+    return () => {
+      document.body.style.overflow = "unset"
+    }
+  }, [isOpen])
 
   useEffect(() => {
     if (detailsError) {
@@ -160,7 +179,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md" blockScrollOnMount>
         <DrawerOverlay />
 
         <DrawerContent bg="#050816">
@@ -172,8 +191,8 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                 position="relative"
                 w="100%"
                 h={{
-                  base: "380px",
-                  md: "520px"
+                  base: "350px",
+                  md: "320px"
                 }}
                 overflow="hidden"
                 bg="black"
@@ -189,13 +208,19 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                     display="block"
                     cursor="zoom-in"
                     onDoubleClick={onLightboxOpen}
-                    drag="x"
-                    dragConstraints={{
-                      left: 0,
-                      right: 0
-                    }}
-                    dragElastic={0.16}
-                    onDragEnd={handleImageDragEnd}
+                    drag={hasMultipleImages ? "x" : undefined}
+                    dragConstraints={
+                      hasMultipleImages
+                        ? {
+                            left: 0,
+                            right: 0
+                          }
+                        : undefined
+                    }
+                    dragElastic={hasMultipleImages ? 0.16 : undefined}
+                    onDragEnd={
+                      hasMultipleImages ? handleImageDragEnd : undefined
+                    }
                     initial={{
                       opacity: 0
                     }}
@@ -230,7 +255,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       py={1.5}
                       bg="brand.400"
                       color="white"
-                      fontSize="sm"
+                      fontSize="xs"
                     >
                       NOVO
                     </Badge>
@@ -243,7 +268,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       py={1.5}
                       bg="red.500"
                       color="white"
-                      fontSize="sm"
+                      fontSize="xs"
                     >
                       REDUZIU
                     </Badge>
@@ -256,7 +281,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       py={1.5}
                       bg="purple.500"
                       color="white"
-                      fontSize="sm"
+                      fontSize="xs"
                     >
                       ALUGADO
                     </Badge>
@@ -283,42 +308,59 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                 />
 
                 {/* PREVIOUS */}
-
-                <IconButton
-                  aria-label="Imagem anterior"
-                  icon={<FiChevronLeft />}
-                  position="absolute"
-                  left={4}
-                  top="50%"
-                  transform="translateY(-50%)"
-                  borderRadius="full"
-                  bg="blackAlpha.600"
-                  color="white"
-                  zIndex={3}
-                  _hover={{
-                    bg: "blackAlpha.700"
-                  }}
-                  onClick={previousImage}
-                />
+                {hasMultipleImages && (
+                  <IconButton
+                    aria-label="Imagem anterior"
+                    icon={<FiChevronLeft />}
+                    position="absolute"
+                    left={4}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    borderRadius="full"
+                    bg="blackAlpha.600"
+                    color="white"
+                    zIndex={3}
+                    _hover={{
+                      bg: "blackAlpha.700"
+                    }}
+                    onClick={previousImage}
+                  />
+                )}
 
                 {/* NEXT */}
+                {hasMultipleImages && (
+                  <IconButton
+                    aria-label="Próxima imagem"
+                    icon={<FiChevronRight />}
+                    position="absolute"
+                    right={4}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    borderRadius="full"
+                    bg="blackAlpha.600"
+                    color="white"
+                    zIndex={3}
+                    _hover={{
+                      bg: "blackAlpha.700"
+                    }}
+                    onClick={nextImage}
+                  />
+                )}
 
-                <IconButton
-                  aria-label="Próxima imagem"
-                  icon={<FiChevronRight />}
+                <Box
                   position="absolute"
-                  right={4}
-                  top="50%"
-                  transform="translateY(-50%)"
-                  borderRadius="full"
+                  left={5}
+                  bottom={5}
+                  px={4}
+                  py={1}
+                  borderRadius="xl"
                   bg="blackAlpha.600"
-                  color="white"
                   zIndex={3}
-                  _hover={{
-                    bg: "blackAlpha.700"
-                  }}
-                  onClick={nextImage}
-                />
+                >
+                  <Text color="white" fontWeight="bold" fontSize="sm">
+                    {selectedIndex + 1}/{images.length}
+                  </Text>
+                </Box>
 
                 {/* PRICE */}
 
@@ -339,8 +381,8 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                     fontWeight="black"
                     lineHeight="1"
                     fontSize={{
-                      base: "3xl",
-                      md: "5xl"
+                      base: "2xl",
+                      md: "xl"
                     }}
                   >
                     {listing.price}
@@ -380,7 +422,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       minW="110px"
                       w="110px"
                       h="82px"
-                      borderRadius="2xl"
+                      borderRadius="sm"
                       overflow="hidden"
                       cursor="pointer"
                       flexShrink={0}
@@ -469,15 +511,33 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
                 {/* PROVIDER */}
 
-                <Box bg="glass" borderRadius="2xl" p={5}>
-                  <Text color="gray.400" fontSize="sm" mb={2}>
-                    Imobiliária
-                  </Text>
+                <Flex
+                  gap={4}
+                  bg="glass"
+                  align="center"
+                  borderRadius="2xl"
+                  w="100%"
+                  pl={6}
+                >
+                  <IconButton
+                    aria-label="Imobiliária"
+                    icon={<MdOutlineRealEstateAgent size="25px" />}
+                    color="white"
+                    size="md"
+                    borderRadius="0"
+                    border="0"
+                    background="transparent"
+                  />
+                  <Box w="100%" p={5} pl={1}>
+                    <Text color="gray.400" fontSize="sm" mb={1}>
+                      Imobiliária
+                    </Text>
 
-                  <Text fontWeight="bold" fontSize="lg">
-                    {listing.provider}
-                  </Text>
-                </Box>
+                    <Text fontWeight="bold" fontSize="lg">
+                      {listing.provider}
+                    </Text>
+                  </Box>
+                </Flex>
 
                 {/* DETAILS */}
 
@@ -529,48 +589,96 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
                 {/* PRICE REDUCTION */}
 
-                {listing.is_reduced && listing.old_price && (
-                  <Box
-                    bg="
-                        rgba(
-                          255,
-                          0,
-                          0,
-                          0.08
-                        )
-                      "
-                    border="
-                        1px solid
-                        rgba(
-                          255,
-                          0,
-                          0,
-                          0.18
-                        )
-                      "
+                {listing.is_reduced && (
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    bg="linear-gradient(135deg, rgba(255,0,0,0.10), rgba(255,80,80,0.04))"
+                    border="1px solid rgba(255,80,80,0.25)"
                     borderRadius="2xl"
-                    p={5}
+                    p={4}
+                    position="relative"
+                    overflow="hidden"
                   >
-                    <Text color="gray.400" fontSize="sm" mb={2}>
-                      Preço anterior
-                    </Text>
+                    <Box
+                      position="absolute"
+                      top="-30px"
+                      right="-30px"
+                      w="80px"
+                      h="80px"
+                      bg="red.500"
+                      opacity={0.08}
+                      borderRadius="full"
+                      filter="blur(20px)"
+                    />
 
-                    <Flex justify="space-between" align="center">
-                      <Text textDecoration="line-through" color="red.300">
-                        {listing.old_price}
+                    <Stack spacing={2} zIndex={1} flex={1}>
+                      <Text
+                        color="gray.400"
+                        fontSize="xs"
+                        textTransform="uppercase"
+                        letterSpacing="1px"
+                        fontWeight="bold"
+                      >
+                        Preço reduzido
                       </Text>
 
-                      <Badge
-                        borderRadius="full"
-                        px={3}
-                        py={1}
-                        bg="green.500"
-                        color="white"
+                      {listing.old_price ? (
+                        <Flex gap={4} align="flex-end" wrap="wrap">
+                          <Stack spacing={0} flex="1" minW="130px">
+                            <Text color="gray.400" fontSize="xs">
+                              Antes
+                            </Text>
+                            <Text
+                              textDecoration="line-through"
+                              color="red.300"
+                              fontSize="md"
+                              fontWeight="semibold"
+                            >
+                              {listing.old_price}
+                            </Text>
+                          </Stack>
+
+                          <Stack spacing={0} flex="1" minW="130px">
+                            <Text color="gray.400" fontSize="sm">
+                              Agora
+                            </Text>
+                            <Text
+                              color="white"
+                              fontSize="2xl"
+                              fontWeight="extrabold"
+                              lineHeight="1"
+                            >
+                              R$ {listing.price}
+                            </Text>
+                          </Stack>
+                        </Flex>
+                      ) : (
+                        <Text color="gray.300" fontSize="sm">
+                          Preço com redução aplicada
+                        </Text>
+                      )}
+                    </Stack>
+
+                    <Stat textAlign="right" minW="120px" zIndex={1}>
+                      <StatLabel color="gray.400" fontSize="sm">
+                        Economia
+                      </StatLabel>
+                      <StatNumber
+                        color="green.300"
+                        fontSize="2xl"
+                        fontWeight="bold"
                       >
-                        {listing.price_difference}
-                      </Badge>
-                    </Flex>
-                  </Box>
+                        {listing.price_difference ?? "--"}
+                      </StatNumber>
+                      {listing.price_drop_percentage != null ? (
+                        <StatHelpText color="green.300" fontSize="md">
+                          <StatArrow type="decrease" />
+                          {listing.price_drop_percentage}%
+                        </StatHelpText>
+                      ) : null}
+                    </Stat>
+                  </Flex>
                 )}
 
                 {/* BUTTON */}

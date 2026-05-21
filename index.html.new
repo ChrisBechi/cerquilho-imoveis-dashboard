@@ -5,53 +5,49 @@
   <!-- Charset e Viewport -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  
   <!-- Título e Descrição -->
   <title>Cerquilho Imóveis - Explore Imóveis e Reduções de Preço</title>
-  <meta name="description"
-    content="Plataforma de busca e análise de imóveis em Cerquilho. Acompanhe reduções de preço, históricos de valor, análise de mercado e oportunidades em tempo real." />
-  <meta name="keywords"
-    content="imóveis cerquilho, casas cerquilho, apartamentos cerquilho, compra venda imóveis, redução preço imóvel, análise mercado imobiliário" />
+  <meta name="description" content="Plataforma premium de busca e análise de imóveis em Cerquilho. Acompanhe reduções de preço, históricos de valor, análise de mercado e oportunidades em tempo real." />
+  <meta name="keywords" content="imóveis cerquilho, casas cerquilho, apartamentos cerquilho, compra venda imóveis, redução preço imóvel, análise mercado imobiliário" />
   <meta name="author" content="Cerquilho Imóveis" />
   <meta name="theme-color" content="#050816" />
-
+  
   <!-- Robots e Indexação -->
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="language" content="Portuguese" />
   <meta name="revisit-after" content="7 days" />
-
+  
   <!-- Canonical URL -->
   <link rel="canonical" href="https://cerquilho-imoveis.com.br" />
-
+  
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://cerquilho-imoveis.com.br" />
   <meta property="og:title" content="Cerquilho Imóveis - Explore Imóveis e Reduções de Preço" />
-  <meta property="og:description"
-    content="Plataforma premium de busca e análise de imóveis em Cerquilho. Acompanhe reduções de preço, históricos de valor, análise de mercado e oportunidades em tempo real." />
+  <meta property="og:description" content="Plataforma premium de busca e análise de imóveis em Cerquilho. Acompanhe reduções de preço, históricos de valor, análise de mercado e oportunidades em tempo real." />
   <meta property="og:image" content="https://cerquilho-imoveis.com.br/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content="Cerquilho Imóveis" />
   <meta property="og:locale" content="pt_BR" />
-
+  
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://cerquilho-imoveis.com.br" />
   <meta name="twitter:title" content="Cerquilho Imóveis - Explore Imóveis e Reduções de Preço" />
-  <meta name="twitter:description"
-    content="Plataforma premium de busca e análise de imóveis em Cerquilho. Acompanhe reduções de preço, históricos de valor, análise de mercado e oportunidades em tempo real." />
+  <meta name="twitter:description" content="Plataforma premium de busca e análise de imóveis em Cerquilho. Acompanhe reduções de preço, históricos de valor, análise de mercado e oportunidades em tempo real." />
   <meta name="twitter:image" content="https://cerquilho-imoveis.com.br/og-image.png" />
-
+  
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/manifest.json" />
-
+  
   <!-- Preconnect para Performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="dns-prefetch" href="https://cdn.supabase.com" />
-
+  
   <!-- JSON-LD Structured Data - Real Estate Agent -->
   <script type="application/ld+json">
   {
@@ -74,7 +70,7 @@
     }
   }
   </script>
-
+  
   <!-- JSON-LD Organization -->
   <script type="application/ld+json">
   {
@@ -95,7 +91,7 @@
     ]
   }
   </script>
-
+  
   <!-- JSON-LD Local Business -->
   <script type="application/ld+json">
   {

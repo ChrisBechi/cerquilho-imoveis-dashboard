@@ -2,6 +2,7 @@ import {
   Box,
   Flex,
   HStack,
+  Image,
   Stack,
   Text,
   useBreakpointValue
@@ -39,6 +40,15 @@ export default function Header() {
         gap={4}
       >
         <HStack spacing={4}>
+          <Image
+            src="/icone-header.png"
+            alt="Cerquilho Imóveis"
+            h={{
+              base: "45px",
+              md: "50px"
+            }}
+            w="auto"
+          />
           <Stack spacing={0}>
             <Text
               fontSize={{
