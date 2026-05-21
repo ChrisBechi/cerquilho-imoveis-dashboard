@@ -19,9 +19,9 @@ export interface Listing {
   price_difference?: string
   price_drop_percentage?: number
   url: string
-    code?: string
-    contact?: string
-  }
+  code?: string
+  contact?: string
+}
 
 export interface IPriceHistory {
   date: string

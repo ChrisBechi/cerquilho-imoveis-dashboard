@@ -56,9 +56,7 @@ export default function ExploreListingsSection() {
         return baseListings.filter((listing: any) => listing.is_new)
 
       case "favorites":
-        return favoriteListings.filter(
-          (listing: any) => !listing.is_rented
-        )
+        return favoriteListings.filter((listing: any) => !listing.is_rented)
 
       default:
         return baseListings
