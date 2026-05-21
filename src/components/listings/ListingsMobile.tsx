@@ -12,10 +12,18 @@ import {
 import { memo } from "react"
 import { FiExternalLink, FiHeart, FiHome, FiMapPin } from "react-icons/fi"
 import { TbRulerMeasure } from "react-icons/tb"
-import { FaBath, FaHeart } from "react-icons/fa"
+import { FaBath, FaHeart, FaWhatsapp } from "react-icons/fa"
 import type { Listing } from "../../types/listing"
 import ListingsEmptyState from "./ListingsEmptyState"
 import { useFavorites } from "../../context/FavoritesContext"
+
+function generateWhatsAppUrl(listing: Listing): string {
+  if (!listing.contact) return ""
+
+  const message = `Olá, fiquei interessado no imóvel ${listing.code ? `com o código '${listing.code}'` : ""} e gostaria de agendar uma visita. Pode ser para o primeiro horário que tiver disponível.`
+  const encodedMessage = encodeURIComponent(message)
+  return `https://wa.me/55${listing.contact}?text=${encodedMessage}`
+}
 
 interface Props {
   listings: Listing[]
@@ -154,19 +162,38 @@ function ListingsMobile({ listings, onSelect, onReset }: Props) {
             </HStack>
 
             {!listing.is_rented && (
-              <Button
-                w="100%"
-                size="lg"
-                colorScheme="blue"
-                borderRadius="xl"
-                variant="solid"
-                rightIcon={<FiExternalLink />}
-                transition="0.2s"
-                mt={5}
-                _hover={{ transform: "translateY(-2px)" }}
-              >
-                Ver imóvel
-              </Button>
+              <Stack gap={3} w="100%">
+                <Button
+                  w="100%"
+                  size="lg"
+                  colorScheme="blue"
+                  borderRadius="xl"
+                  variant="solid"
+                  rightIcon={<FiExternalLink />}
+                  transition="0.2s"
+                  mt={5}
+                  _hover={{ transform: "translateY(-2px)" }}
+                >
+                  Ver imóvel
+                </Button>
+                {listing.contact && (
+                  <Button
+                    w="100%"
+                    size="lg"
+                    bg="#25D366"
+                    color="white"
+                    borderRadius="xl"
+                    rightIcon={<FaWhatsapp />}
+                    transition="0.2s"
+                    onClick={() =>
+                      window.open(generateWhatsAppUrl(listing), "_blank")
+                    }
+                    _hover={{ transform: "translateY(-2px)", bg: "#1ebc5f" }}
+                  >
+                    Agendar visita
+                  </Button>
+                )}
+              </Stack>
             )}
           </Stack>
         </Box>

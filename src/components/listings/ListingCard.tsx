@@ -29,12 +29,20 @@ import {
   FiChevronRight
 } from "react-icons/fi"
 import { TbRulerMeasure } from "react-icons/tb"
-import { FaBath, FaHeart } from "react-icons/fa"
+import { FaBath, FaHeart, FaWhatsapp } from "react-icons/fa"
 import type { Listing } from "../../types/listing"
 import ListingDrawer from "./ListingDrawer"
 
 const MotionBox = motion(Box)
 const MotionImage = motion(Image)
+
+function generateWhatsAppUrl(listing: Listing): string {
+  if (!listing.contact) return ""
+
+  const message = `Olá, fiquei interessado no imóvel ${listing.code ? `com o código '${listing.code}'` : ""} e gostaria de agendar uma visita. Pode ser para o primeiro horário que tiver disponível.`
+  const encodedMessage = encodeURIComponent(message)
+  return `https://wa.me/55${listing.contact}?text=${encodedMessage}`
+}
 
 interface Props {
   listing: Listing
@@ -468,26 +476,54 @@ function ListingCard({
           <ListingReducedSection listing={listing} />
 
           {!listing.is_rented && (
-            <Link
-              mt="auto"
-              onClick={(event) => event.stopPropagation()}
-              href={listing.url}
-              isExternal
-              _hover={{ textDecoration: "none" }}
-            >
-              <Button
-                w="100%"
-                size="lg"
-                variant="solid"
-                colorScheme="blue"
-                borderRadius="xl"
-                rightIcon={<FiExternalLink />}
-                transition="0.2s"
-                _hover={{ transform: "translateY(-2px)" }}
+            <HStack spacing={3} w="100%" flexWrap="wrap" mt="auto">
+              <Link
+                flex={1}
+                minW={0}
+                onClick={(event) => event.stopPropagation()}
+                href={listing.url}
+                isExternal
+                _hover={{ textDecoration: "none" }}
               >
-                Ver imóvel
-              </Button>
-            </Link>
+                <Button
+                  w="100%"
+                  size="md"
+                  fontSize="sm"
+                  variant="solid"
+                  colorScheme="blue"
+                  borderRadius="xl"
+                  rightIcon={<FiExternalLink />}
+                  transition="0.2s"
+                  _hover={{ transform: "translateY(-2px)" }}
+                >
+                  Ver imóvel
+                </Button>
+              </Link>
+              {listing.contact && (
+                <Link
+                  flex={1}
+                  minW={0}
+                  href={generateWhatsAppUrl(listing)}
+                  isExternal
+                  onClick={(event) => event.stopPropagation()}
+                  _hover={{ textDecoration: "none" }}
+                >
+                  <Button
+                    w="100%"
+                    size="md"
+                    fontSize="sm"
+                    bg="#25D366"
+                    color="white"
+                    borderRadius="xl"
+                    rightIcon={<FaWhatsapp />}
+                    transition="0.2s"
+                    _hover={{ transform: "translateY(-2px)", bg: "#1ebc5f" }}
+                  >
+                    Agendar visita
+                  </Button>
+                </Link>
+              )}
+            </HStack>
           )}
         </Stack>
       </MotionBox>

@@ -14,6 +14,8 @@ type ListingRow = {
   price_label?: string | null
   rented_at?: string | null
   url: string
+  code?: string | null
+  contact?: string | null
 }
 
 type ListingEventRow = {
@@ -191,6 +193,8 @@ export function normalizeListing(
     old_price_numeric: oldPriceNumeric,
     price_difference: getPriceDifference(oldPriceCents, currentPrice),
     price_drop_percentage: priceDropPercentage,
-    url: row.url
+    url: row.url,
+    code: row.code || undefined,
+    contact: row.contact || undefined
   }
 }

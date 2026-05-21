@@ -16,10 +16,18 @@ import {
 import { memo } from "react"
 import { FiExternalLink, FiHome } from "react-icons/fi"
 import { TbRulerMeasure } from "react-icons/tb"
-import { FaBath } from "react-icons/fa"
+import { FaBath, FaWhatsapp } from "react-icons/fa"
 import type { Listing } from "../../types/listing"
 import FavoriteButton from "./FavoriteButton"
 import ListingsEmptyState from "./ListingsEmptyState"
+
+function generateWhatsAppUrl(listing: Listing): string {
+  if (!listing.contact) return ""
+
+  const message = `Olá, fiquei interessado no imóvel ${listing.code ? `com o código '${listing.code}'` : ""} e gostaria de agendar uma visita. Pode ser para o primeiro horário que tiver disponível.`
+  const encodedMessage = encodeURIComponent(message)
+  return `https://wa.me/55${listing.contact}?text=${encodedMessage}`
+}
 
 interface Props {
   listings: Listing[]
@@ -129,6 +137,22 @@ const ListingRow = memo(function ListingRow({
           onClick={(event) => {
             event.stopPropagation()
             window.open(listing.url, "_blank")
+            {
+              listing.contact && (
+                <Td>
+                  <IconButton
+                    aria-label="Agendar visita"
+                    color="green.300"
+                    icon={<FaWhatsapp />}
+                    variant="ghost"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      window.open(generateWhatsAppUrl(listing), "_blank")
+                    }}
+                  />
+                </Td>
+              )
+            }
           }}
         />
       </Td>

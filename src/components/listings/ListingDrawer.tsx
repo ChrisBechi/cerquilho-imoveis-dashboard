@@ -44,7 +44,7 @@ import { TbRulerMeasure } from "react-icons/tb"
 
 import type { Listing } from "../../types/listing"
 
-import { FaBath } from "react-icons/fa"
+import { FaBath, FaWhatsapp } from "react-icons/fa"
 
 import ImageLightbox from "../ImageLightbox"
 
@@ -58,6 +58,14 @@ import ListingInfoCard from "./ListingInfoCard"
 
 const MotionImage = motion(Image)
 
+function generateWhatsAppUrl(listing: Listing): string {
+  if (!listing.contact) return ""
+
+  const message = `Olá, fiquei interessado no imóvel ${listing.code ? `com o código '${listing.code}'` : ""} e gostaria de agendar uma visita. Pode ser para o primeiro horário que tiver disponível.`
+  const encodedMessage = encodeURIComponent(message)
+  return `https://wa.me/55${listing.contact}?text=${encodedMessage}`
+}
+
 interface Props {
   isOpen: boolean
 
@@ -67,12 +75,9 @@ interface Props {
 }
 
 export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
-  if (!listing) {
-    return null
-  }
-
   const images = useMemo(
-    () => (listing.images?.length ? listing.images : [listing.thumbnail_url]),
+    () =>
+      listing?.images?.length ? listing.images : [listing?.thumbnail_url || ""],
     [listing]
   )
 
@@ -99,23 +104,45 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
     error: detailsError,
 
     refetch: refetchDetails
-  } = useListingDetails(listing.id)
+  } = useListingDetails(listing?.id || 0)
 
   const toast = useToast()
 
   useEffect(() => {
     setSelectedIndex(0)
-  }, [listing.id])
+  }, [listing?.id])
 
   useEffect(() => {
     if (isOpen) {
+      // Incrementar contador de drawers abertos
+      const count =
+        parseInt(document.body.getAttribute("data-drawer-count") || "0") + 1
+      document.body.setAttribute("data-drawer-count", count.toString())
       document.body.style.overflow = "hidden"
     } else {
-      document.body.style.overflow = "unset"
+      // Decrementar contador de drawers abertos
+      const count = Math.max(
+        0,
+        parseInt(document.body.getAttribute("data-drawer-count") || "1") - 1
+      )
+      document.body.setAttribute("data-drawer-count", count.toString())
+
+      // Apenas restaurar scroll se não há mais drawers abertos
+      if (count === 0) {
+        document.body.style.overflow = "unset"
+      }
     }
 
     return () => {
-      document.body.style.overflow = "unset"
+      const count = Math.max(
+        0,
+        parseInt(document.body.getAttribute("data-drawer-count") || "1") - 1
+      )
+      document.body.setAttribute("data-drawer-count", count.toString())
+
+      if (count === 0) {
+        document.body.style.overflow = "unset"
+      }
     }
   }, [isOpen])
 
@@ -150,6 +177,10 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
       block: "nearest"
     })
   }, [selectedIndex])
+
+  if (!listing) {
+    return null
+  }
 
   function nextImage() {
     setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
@@ -689,24 +720,47 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
                 {/* BUTTON */}
 
-                <Link
-                  href={listing.url}
-                  isExternal
-                  _hover={{
-                    textDecoration: "none"
-                  }}
-                >
-                  <Button
-                    w="100%"
-                    size="lg"
-                    colorScheme="blue"
-                    variant="solid"
-                    borderRadius="xl"
-                    rightIcon={<FiExternalLink />}
+                <Stack spacing={3} w="100%">
+                  <Link
+                    href={listing.url}
+                    isExternal
+                    _hover={{
+                      textDecoration: "none"
+                    }}
+                    flex={1}
                   >
-                    Abrir anúncio
-                  </Button>
-                </Link>
+                    <Button
+                      w="100%"
+                      size="lg"
+                      colorScheme="blue"
+                      variant="solid"
+                      borderRadius="xl"
+                      rightIcon={<FiExternalLink />}
+                    >
+                      Abrir anúncio
+                    </Button>
+                  </Link>
+                  {listing.contact && (
+                    <Link
+                      href={generateWhatsAppUrl(listing)}
+                      isExternal
+                      _hover={{ textDecoration: "none" }}
+                      flex={1}
+                    >
+                      <Button
+                        w="100%"
+                        size="lg"
+                        bg="#25D366"
+                        color="white"
+                        borderRadius="xl"
+                        rightIcon={<FaWhatsapp />}
+                        _hover={{ bg: "#1ebc5f" }}
+                      >
+                        Agendar visita
+                      </Button>
+                    </Link>
+                  )}
+                </Stack>
               </Stack>
             </VStack>
           </DrawerBody>

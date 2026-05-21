@@ -43,12 +43,12 @@ export default function ExploreListingsSection() {
 
     switch (activeTab) {
       case "cheap":
-        return [...listings].sort(
+        return [...baseListings].sort(
           (a: any, b: any) => a.price_numeric - b.price_numeric
         )
 
       case "expensive":
-        return [...listings].sort(
+        return [...baseListings].sort(
           (a: any, b: any) => b.price_numeric - a.price_numeric
         )
 
@@ -56,7 +56,9 @@ export default function ExploreListingsSection() {
         return baseListings.filter((listing: any) => listing.is_new)
 
       case "favorites":
-        return favoriteListings
+        return favoriteListings.filter(
+          (listing: any) => !listing.is_rented
+        )
 
       default:
         return baseListings
