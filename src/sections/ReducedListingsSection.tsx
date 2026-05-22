@@ -4,15 +4,22 @@ import { FiTrendingDown } from "react-icons/fi"
 
 import ListingCard from "../components/listings/ListingCard"
 import { useFavorites } from "../context/FavoritesContext"
-import useListings from "../hooks/useListings"
+import useReducedListings from "../hooks/useReducedListings"
 import { Skeleton } from "@chakra-ui/react"
 
 export default function ReducedListingsSection() {
   const { isFavorite, toggleFavorite } = useFavorites()
-  const { data: listings = [], isLoading } = useListings(50)
-  const reducedListings = listings.filter((listing: any) => listing.is_reduced)
+  const { data: reducedListings = [], isLoading } = useReducedListings(50)
 
-  if (!reducedListings.length) {
+  const sortedReducedListings = reducedListings
+    .filter((listing: any) => listing.is_reduced)
+    .sort((a, b) => {
+      const dateA = a.price_reduced_at ? new Date(a.price_reduced_at).getTime() : 0
+      const dateB = b.price_reduced_at ? new Date(b.price_reduced_at).getTime() : 0
+      return dateB - dateA
+    })
+
+  if (!sortedReducedListings.length) {
     return null
   }
 
@@ -42,7 +49,7 @@ export default function ReducedListingsSection() {
           ? Array.from({ length: 4 }).map((_, idx) => (
               <Skeleton key={idx} height="220px" borderRadius="2xl" />
             ))
-          : reducedListings
+          : sortedReducedListings
               .slice(0, 8)
               .map((listing) => (
                 <ListingCard

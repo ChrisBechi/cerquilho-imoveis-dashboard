@@ -10,7 +10,13 @@ import { Skeleton } from "@chakra-ui/react"
 export default function RentedListingsSection() {
   const { isFavorite, toggleFavorite } = useFavorites()
   const { data: listings = [], isLoading } = useListings(50)
-  const rentedListings = listings.filter((listing: any) => listing.is_rented)
+  const rentedListings = listings
+    .filter((listing: any) => listing.is_rented)
+    .sort((a, b) => {
+      const dateA = a.rented_at ? new Date(a.rented_at).getTime() : 0
+      const dateB = b.rented_at ? new Date(b.rented_at).getTime() : 0
+      return dateB - dateA
+    })
 
   if (!rentedListings.length) {
     return null

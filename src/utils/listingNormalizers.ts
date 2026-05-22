@@ -195,6 +195,8 @@ export function normalizeListing(
     price_drop_percentage: priceDropPercentage,
     url: row.url,
     code: row.code || undefined,
-    contact: row.contact || undefined
+    contact: row.contact || undefined,
+    price_reduced_at: priceDropEvent?.created_at,
+    rented_at: row.rented_at || undefined
   }
 }

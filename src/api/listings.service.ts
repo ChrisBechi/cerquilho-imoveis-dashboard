@@ -126,6 +126,59 @@ export const listingsService = {
       .filter((listing): listing is Listing => Boolean(listing))
   },
 
+  async listReduced({ limit = 50 } = {}) {
+    const eventsResponse = await supabase
+      .from("listing_events")
+      .select("listing_id, created_at")
+      .eq("type", "price_drop")
+      .order("created_at", { ascending: false })
+      .limit(Math.max(limit * 3, 100))
+
+    if (eventsResponse.error) throw eventsResponse.error
+
+    const listingIds: number[] = []
+    ;(eventsResponse.data ?? []).forEach((event: any) => {
+      if (!listingIds.includes(event.listing_id)) {
+        listingIds.push(event.listing_id)
+      }
+    })
+
+    const reducedListingIds = listingIds.slice(0, limit)
+    if (!reducedListingIds.length) {
+      return [] as Listing[]
+    }
+
+    const listingResponse = await supabase
+      .from("listings")
+      .select(
+        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact"
+      )
+      .in("id", reducedListingIds)
+
+    if (listingResponse.error) throw listingResponse.error
+
+    const listings = listingResponse.data ?? []
+    const { imagesByListing, eventsByListing, historyByListing } =
+      await fetchListingRelations(reducedListingIds)
+
+    const normalizedListings = listings
+      .map((row: any) =>
+        normalizeListing(
+          row,
+          imagesByListing.get(row.id) ?? [],
+          eventsByListing.get(row.id) ?? [],
+          historyByListing.get(row.id) ?? []
+        )
+      )
+      .filter((listing) => listing.is_reduced)
+      .sort(
+        (a, b) =>
+          reducedListingIds.indexOf(a.id) - reducedListingIds.indexOf(b.id)
+      )
+
+    return normalizedListings
+  },
+
   async getPriceHistory(listingId: number) {
     const res = await supabase
       .from("listing_price_history")

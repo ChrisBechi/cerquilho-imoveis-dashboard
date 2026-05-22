@@ -21,6 +21,8 @@ export interface Listing {
   url: string
   code?: string
   contact?: string
+  price_reduced_at?: string
+  rented_at?: string
 }
 
 export interface IPriceHistory {
