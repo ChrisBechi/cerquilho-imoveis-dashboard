@@ -84,7 +84,10 @@ const ListingRow = memo(function ListingRow({
 
       <Td>
         <Text fontWeight="bold" color="blue.300">
-          {listing.price}
+          R$ {listing.price_numeric.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })}
         </Text>
       </Td>
 
