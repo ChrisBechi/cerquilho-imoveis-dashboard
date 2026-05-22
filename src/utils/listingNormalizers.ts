@@ -93,7 +93,7 @@ const getPriceDifference = (
   if (oldPriceCents == null || currentPrice == null) return undefined
 
   const diff = Math.abs(oldPriceCents - currentPrice)
-  return centsToBRL(diff)
+  return centsToBRL(diff, 2)
 }
 
 const getPriceDropEvent = (events: ListingEventRow[]) => {

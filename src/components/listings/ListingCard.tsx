@@ -184,7 +184,10 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
                 fontWeight="extrabold"
                 lineHeight="1"
               >
-                R$ {listing.price}
+                R$ {listing.price_numeric.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
               </Text>
             </Stack>
           </Flex>
