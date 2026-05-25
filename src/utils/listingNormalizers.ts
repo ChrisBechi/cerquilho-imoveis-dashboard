@@ -16,6 +16,7 @@ type ListingRow = {
   url: string
   code?: string | null
   contact?: string | null
+  location?: string | null
 }
 
 type ListingEventRow = {
@@ -196,6 +197,7 @@ export function normalizeListing(
     url: row.url,
     code: row.code || undefined,
     contact: row.contact || undefined,
+    location: row.location ? String(row.location) : undefined,
     price_reduced_at: priceDropEvent?.created_at,
     rented_at: row.rented_at || undefined
   }

@@ -15,11 +15,11 @@ import {
   StatHelpText,
   StatLabel,
   StatNumber,
-  Text,
-  useDisclosure
+  Text
 } from "@chakra-ui/react"
 import { memo, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { BsFire } from "react-icons/bs"
 import {
   FiExternalLink,
   FiHeart,
@@ -31,7 +31,7 @@ import {
 import { TbRulerMeasure } from "react-icons/tb"
 import { FaBath, FaHeart, FaWhatsapp } from "react-icons/fa"
 import type { Listing } from "../../types/listing"
-import ListingDrawer from "./ListingDrawer"
+import { useListingDrawer } from "../../context/ListingDrawerContext"
 
 const MotionBox = motion(Box)
 const MotionImage = motion(Image)
@@ -113,8 +113,18 @@ function ListingSpecs({ listing }: { listing: Listing }) {
         <TbRulerMeasure />
         {listing.area}m²
       </Flex>
+      {hasFireInsurance(listing) && (
+        <Flex align="center" gap={2} bg="glass" px={3} py={2} borderRadius="xl">
+          <BsFire />
+          Seguro incêndio
+        </Flex>
+      )}
     </Flex>
   )
+}
+
+function hasFireInsurance(listing: Listing) {
+  return /inc[eéê]ndio/i.test(listing.price)
 }
 
 function ListingReducedSection({ listing }: { listing: Listing }) {
@@ -184,7 +194,8 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
                 fontWeight="extrabold"
                 lineHeight="1"
               >
-                R$ {listing.price_numeric.toLocaleString("pt-BR", {
+                R${" "}
+                {listing.price_numeric.toLocaleString("pt-BR", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
                 })}
@@ -222,8 +233,12 @@ function ListingCard({
   onToggleFavorite,
   isLoading
 }: Props) {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { openDrawer } = useListingDrawer()
   const [selectedIndex, setSelectedIndex] = useState(0)
+
+  const handleOpenDrawer = () => {
+    openDrawer(listing)
+  }
 
   const images = useMemo(
     () =>
@@ -292,247 +307,242 @@ function ListingCard({
   }
 
   return (
-    <>
-      <MotionBox
-        cursor="pointer"
-        onClick={onOpen}
-        initial={false}
-        animate={false}
-        transition={{ duration: 0.25 }}
-        display="flex"
-        flexDirection="column"
-        h="100%"
-        bg="surfaceSecondary"
-        borderRadius="2xl"
-        overflow="hidden"
-        border="1px solid"
-        borderColor="border"
-        position="relative"
-        whileHover={{ y: -4 }}
-        _hover={{
-          borderColor: "borderStrong",
-          boxShadow: "soft"
-        }}
-      >
-        <Box position="relative" overflow="hidden">
-          <AnimatePresence mode="wait">
-            <MotionImage
-              key={selectedImage}
-              src={`${selectedImage}?w=800&q=80`}
-              alt={listing.title}
-              h="240px"
-              w="100%"
-              objectFit="cover"
-              cursor={hasMultipleImages ? "grab" : "default"}
-              _active={hasMultipleImages ? { cursor: "grabbing" } : undefined}
-              drag={hasMultipleImages ? "x" : undefined}
-              dragConstraints={
-                hasMultipleImages ? { left: 0, right: 0 } : undefined
-              }
-              dragElastic={hasMultipleImages ? 0.16 : undefined}
-              onDragEnd={handleImageDragEnd}
-              initial={{
-                opacity: 0
-              }}
-              animate={{
-                opacity: 1
-              }}
-              exit={{
-                opacity: 0
-              }}
-              transition={{
-                duration: 0.25
-              }}
-            />
-          </AnimatePresence>
-
-          {/* Navigation Arrows */}
-          {images.length > 1 && (
-            <>
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation()
-                  previousImage()
-                }}
-                aria-label="Foto anterior"
-                icon={<FiChevronLeft />}
-                position="absolute"
-                left={2}
-                top="50%"
-                transform="translateY(-50%)"
-                bg="blackAlpha.600"
-                color="white"
-                borderRadius="sm"
-                size="sm"
-                _hover={{ bg: "blackAlpha.800" }}
-                zIndex={2}
-              />
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation()
-                  nextImage()
-                }}
-                aria-label="Próxima foto"
-                icon={<FiChevronRight />}
-                position="absolute"
-                right={2}
-                top="50%"
-                transform="translateY(-50%)"
-                bg="blackAlpha.600"
-                color="white"
-                borderRadius="sm"
-                size="sm"
-                _hover={{ bg: "blackAlpha.800" }}
-                zIndex={2}
-              />
-            </>
-          )}
-
-          {/* Image Counter */}
-          {images.length > 1 && (
-            <Box
-              position="absolute"
-              bottom={3}
-              left={2}
-              bg="blackAlpha.600"
-              px={3}
-              py={1}
-              borderRadius="md"
-            >
-              <Text color="white" fontWeight="bold" fontSize="xs">
-                {selectedIndex + 1}/{images.length}
-              </Text>
-            </Box>
-          )}
-
-          {/* Status Badges */}
-          <HStack
-            position="absolute"
-            top={3}
-            left={3}
-            spacing={2}
-            flexWrap="wrap"
-          >
-            <ListingStatusBadges listing={listing} />
-          </HStack>
-
-          {/* Favorite Button */}
-          <IconButton
-            onClick={(event) => {
-              event.stopPropagation()
-              onToggleFavorite(listing.id.toString())
+    <MotionBox
+      cursor="pointer"
+      onClick={handleOpenDrawer}
+      initial={false}
+      animate={false}
+      transition={{ duration: 0.25 }}
+      display="flex"
+      flexDirection="column"
+      h="100%"
+      bg="surfaceSecondary"
+      borderRadius="2xl"
+      overflow="hidden"
+      border="1px solid"
+      borderColor="border"
+      position="relative"
+      whileHover={{ y: -4 }}
+      _hover={{
+        borderColor: "borderStrong",
+        boxShadow: "soft"
+      }}
+    >
+      <Box position="relative" overflow="hidden">
+        <AnimatePresence mode="wait">
+          <MotionImage
+            key={selectedImage}
+            src={`${selectedImage}?w=800&q=80`}
+            alt={listing.title}
+            h="240px"
+            w="100%"
+            objectFit="cover"
+            cursor={hasMultipleImages ? "grab" : "default"}
+            _active={hasMultipleImages ? { cursor: "grabbing" } : undefined}
+            drag={hasMultipleImages ? "x" : undefined}
+            dragConstraints={
+              hasMultipleImages ? { left: 0, right: 0 } : undefined
+            }
+            dragElastic={hasMultipleImages ? 0.16 : undefined}
+            onDragEnd={handleImageDragEnd}
+            initial={{
+              opacity: 0
             }}
-            aria-label="Favoritar"
-            icon={isFavorite ? <FaHeart /> : <FiHeart />}
-            color="danger"
-            size="sm"
-            borderRadius="full"
-            position="absolute"
-            right={3}
-            top={3}
-            bg="blackAlpha.600"
-            _hover={{
-              transform: "scale(1.08)",
-              bg: "glassHover"
+            animate={{
+              opacity: 1
+            }}
+            exit={{
+              opacity: 0
+            }}
+            transition={{
+              duration: 0.25
             }}
           />
+        </AnimatePresence>
 
+        {/* Navigation Arrows */}
+        {images.length > 1 && (
+          <>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation()
+                previousImage()
+              }}
+              aria-label="Foto anterior"
+              icon={<FiChevronLeft />}
+              position="absolute"
+              left={2}
+              top="50%"
+              transform="translateY(-50%)"
+              bg="blackAlpha.600"
+              color="white"
+              borderRadius="sm"
+              size="sm"
+              _hover={{ bg: "blackAlpha.800" }}
+              zIndex={2}
+            />
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation()
+                nextImage()
+              }}
+              aria-label="Próxima foto"
+              icon={<FiChevronRight />}
+              position="absolute"
+              right={2}
+              top="50%"
+              transform="translateY(-50%)"
+              bg="blackAlpha.600"
+              color="white"
+              borderRadius="sm"
+              size="sm"
+              _hover={{ bg: "blackAlpha.800" }}
+              zIndex={2}
+            />
+          </>
+        )}
+
+        {/* Image Counter */}
+        {images.length > 1 && (
           <Box
             position="absolute"
             bottom={3}
-            right={2}
+            left={2}
             bg="blackAlpha.600"
-            px={4}
+            px={3}
             py={1}
-            borderRadius="xl"
+            borderRadius="md"
           >
-            <Text color="white" fontWeight="bold" fontSize="lg">
-              {listing.price}
+            <Text color="white" fontWeight="bold" fontSize="xs">
+              {selectedIndex + 1}/{images.length}
             </Text>
           </Box>
+        )}
+
+        {/* Status Badges */}
+        <HStack
+          position="absolute"
+          top={3}
+          left={3}
+          spacing={2}
+          flexWrap="wrap"
+        >
+          <ListingStatusBadges listing={listing} />
+        </HStack>
+
+        {/* Favorite Button */}
+        <IconButton
+          onClick={(event) => {
+            event.stopPropagation()
+            onToggleFavorite(listing.id.toString())
+          }}
+          aria-label="Favoritar"
+          icon={isFavorite ? <FaHeart /> : <FiHeart />}
+          color="danger"
+          size="sm"
+          borderRadius="full"
+          position="absolute"
+          right={3}
+          top={3}
+          bg="blackAlpha.600"
+          _hover={{
+            transform: "scale(1.08)",
+            bg: "glassHover"
+          }}
+        />
+
+        <Box
+          position="absolute"
+          bottom={3}
+          right={2}
+          bg="blackAlpha.600"
+          px={4}
+          py={1}
+          borderRadius="xl"
+        >
+          <Text color="white" fontWeight="bold" fontSize="lg">
+            R${" "}
+            {listing.price_numeric.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })}
+          </Text>
         </Box>
+      </Box>
 
-        <Stack p={5} spacing={4} flex={1}>
-          <Stack spacing={0}>
-            <Text
-              fontSize="xl"
-              fontWeight="bold"
-              lineHeight="1.2"
-              noOfLines={2}
+      <Stack p={5} spacing={4} flex={1}>
+        <Stack spacing={0}>
+          <Text fontSize="xl" fontWeight="bold" lineHeight="1.2" noOfLines={2}>
+            {listing.title}
+          </Text>
+
+          {listing.neighborhood && (
+            <HStack color="gray.400" spacing={2} fontSize="sm">
+              <Icon as={FiMapPin} />
+              <Text>{listing.neighborhood}</Text>
+            </HStack>
+          )}
+
+          <Text color="gray.500" fontSize="sm">
+            {listing.provider}
+          </Text>
+        </Stack>
+
+        <ListingSpecs listing={listing} />
+        <ListingReducedSection listing={listing} />
+
+        {!listing.is_rented && (
+          <HStack spacing={3} w="100%" flexWrap="wrap" mt="auto">
+            <Link
+              flex={1}
+              minW={0}
+              onClick={(event) => event.stopPropagation()}
+              href={listing.url}
+              isExternal
+              _hover={{ textDecoration: "none" }}
             >
-              {listing.title}
-            </Text>
-
-            {listing.neighborhood && (
-              <HStack color="gray.400" spacing={2} fontSize="sm">
-                <Icon as={FiMapPin} />
-                <Text>{listing.neighborhood}</Text>
-              </HStack>
-            )}
-
-            <Text color="gray.500" fontSize="sm">
-              {listing.provider}
-            </Text>
-          </Stack>
-
-          <ListingSpecs listing={listing} />
-          <ListingReducedSection listing={listing} />
-
-          {!listing.is_rented && (
-            <HStack spacing={3} w="100%" flexWrap="wrap" mt="auto">
+              <Button
+                w="100%"
+                size="md"
+                fontSize="sm"
+                variant="solid"
+                colorScheme="blue"
+                borderRadius="xl"
+                rightIcon={<FiExternalLink />}
+                transition="0.2s"
+                _hover={{ transform: "translateY(-2px)" }}
+              >
+                Ver imóvel
+              </Button>
+            </Link>
+            {listing.contact && (
               <Link
                 flex={1}
                 minW={0}
-                onClick={(event) => event.stopPropagation()}
-                href={listing.url}
+                href={generateWhatsAppUrl(listing)}
                 isExternal
+                onClick={(event) => event.stopPropagation()}
                 _hover={{ textDecoration: "none" }}
               >
                 <Button
                   w="100%"
                   size="md"
                   fontSize="sm"
-                  variant="solid"
-                  colorScheme="blue"
+                  bg="#25D366"
+                  color="white"
                   borderRadius="xl"
-                  rightIcon={<FiExternalLink />}
+                  rightIcon={<FaWhatsapp />}
                   transition="0.2s"
-                  _hover={{ transform: "translateY(-2px)" }}
+                  _hover={{ transform: "translateY(-2px)", bg: "#1ebc5f" }}
                 >
-                  Ver imóvel
+                  Agendar visita
                 </Button>
               </Link>
-              {listing.contact && (
-                <Link
-                  flex={1}
-                  minW={0}
-                  href={generateWhatsAppUrl(listing)}
-                  isExternal
-                  onClick={(event) => event.stopPropagation()}
-                  _hover={{ textDecoration: "none" }}
-                >
-                  <Button
-                    w="100%"
-                    size="md"
-                    fontSize="sm"
-                    bg="#25D366"
-                    color="white"
-                    borderRadius="xl"
-                    rightIcon={<FaWhatsapp />}
-                    transition="0.2s"
-                    _hover={{ transform: "translateY(-2px)", bg: "#1ebc5f" }}
-                  >
-                    Agendar visita
-                  </Button>
-                </Link>
-              )}
-            </HStack>
-          )}
-        </Stack>
-      </MotionBox>
-
-      <ListingDrawer isOpen={isOpen} onClose={onClose} listing={listing} />
-    </>
+            )}
+          </HStack>
+        )}
+      </Stack>
+    </MotionBox>
   )
 }
 

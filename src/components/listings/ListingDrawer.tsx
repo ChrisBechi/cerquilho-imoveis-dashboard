@@ -66,6 +66,32 @@ function generateWhatsAppUrl(listing: Listing): string {
   return `https://wa.me/55${listing.contact}?text=${encodedMessage}`
 }
 
+function getGoogleMapsEmbedUrl(location: string) {
+  if (location.includes("google.com/maps/embed")) {
+    return location
+  }
+
+  try {
+    const url = new URL(location)
+
+    if (url.pathname.startsWith("/maps/embed")) {
+      return location
+    }
+
+    if (url.pathname.startsWith("/maps")) {
+      url.pathname = "/maps/embed"
+      if (!url.searchParams.has("output")) {
+        url.searchParams.set("output", "embed")
+      }
+      return url.toString()
+    }
+  } catch {
+    return location
+  }
+
+  return location
+}
+
 interface Props {
   isOpen: boolean
 
@@ -576,6 +602,41 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                   </Box>
                 </Flex>
 
+                {listing.location && (
+                  <Box
+                    bg="surfaceSecondary"
+                    borderRadius="2xl"
+                    border="1px solid"
+                    borderColor="border"
+                    overflow="hidden"
+                  >
+                    <Box px={6} py={5} bg="glass">
+                      <HStack spacing={3} alignItems="center">
+                        <Icon as={FiMapPin} boxSize={6} color="red.400" />
+                        <Box>
+                          <Text fontWeight="bold" fontSize="md">
+                            Localização
+                          </Text>
+                          <Text color="gray.400" fontSize="sm">
+                            Link do Google Maps
+                          </Text>
+                        </Box>
+                      </HStack>
+                    </Box>
+
+                    <Box
+                      as="iframe"
+                      src={getGoogleMapsEmbedUrl(listing.location)}
+                      w="100%"
+                      h={{ base: "260px", md: "320px" }}
+                      border={0}
+                      loading="lazy"
+                      allowFullScreen
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </Box>
+                )}
+
                 {/* DETAILS */}
 
                 {detailsLoading ? (
@@ -686,7 +747,8 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                               fontWeight="extrabold"
                               lineHeight="1"
                             >
-                              R$ {listing.price_numeric.toLocaleString("pt-BR", {
+                              R${" "}
+                              {listing.price_numeric.toLocaleString("pt-BR", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                               })}

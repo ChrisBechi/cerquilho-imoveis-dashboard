@@ -21,6 +21,7 @@ export interface Listing {
   url: string
   code?: string
   contact?: string
+  location?: string
   price_reduced_at?: string
   rented_at?: string
 }

@@ -14,8 +14,10 @@ import {
   Image
 } from "@chakra-ui/react"
 import { FiBell, FiX } from "react-icons/fi"
-import { memo } from "react"
+import { memo, useCallback } from "react"
 import { useNotifications } from "../../context/NotificationsContext"
+import { useListingDrawer } from "../../context/ListingDrawerContext"
+import useListings from "../../hooks/useListings"
 
 const SCROLLBAR_STYLES = {
   "&::-webkit-scrollbar": {
@@ -69,10 +71,12 @@ const NotificationSkeleton = memo(() => (
 const NotificationItem = memo(
   ({
     notification,
-    onMarkAsRead
+    onMarkAsRead,
+    onOpenListing
   }: {
     notification: any
     onMarkAsRead: (id: string) => void
+    onOpenListing: (listingId: number) => void
   }) => (
     <Box
       position="relative"
@@ -80,6 +84,18 @@ const NotificationItem = memo(
       py={3}
       borderBottom="1px solid"
       borderBottomColor="border"
+      cursor={notification.listingId ? "pointer" : "default"}
+      _hover={
+        notification.listingId
+          ? { bg: "rgba(255,255,255,0.05)" }
+          : undefined
+      }
+      transition="background-color 0.2s"
+      onClick={() => {
+        if (notification.listingId) {
+          onOpenListing(notification.listingId)
+        }
+      }}
     >
       <IconButton
         aria-label="Marcar como lida"
@@ -89,7 +105,10 @@ const NotificationItem = memo(
         position="absolute"
         top="0px"
         right="0px"
-        onClick={() => onMarkAsRead(notification.id)}
+        onClick={(e) => {
+          e.stopPropagation()
+          onMarkAsRead(notification.id)
+        }}
       />
       <HStack align="start" spacing={3}>
         {notification.thumbnail && (
@@ -123,6 +142,18 @@ const LOADING_SKELETONS = Array.from({ length: 3 }, (_, i) => i)
 const NotificationCenter = memo(function NotificationCenter() {
   const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } =
     useNotifications()
+  const { openDrawer } = useListingDrawer()
+  const { data: listings = [] } = useListings(50)
+
+  const handleOpenListing = useCallback(
+    (listingId: number) => {
+      const listing = listings.find((l) => l.id === listingId)
+      if (listing) {
+        openDrawer(listing)
+      }
+    },
+    [listings, openDrawer]
+  )
 
   return (
     <Popover placement="bottom-end">
@@ -178,6 +209,7 @@ const NotificationCenter = memo(function NotificationCenter() {
                       key={n.id}
                       notification={n}
                       onMarkAsRead={markAsRead}
+                      onOpenListing={handleOpenListing}
                     />
                   ))}
                 </Stack>

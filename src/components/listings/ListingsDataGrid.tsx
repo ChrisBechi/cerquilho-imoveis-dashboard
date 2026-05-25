@@ -24,7 +24,7 @@ import { FiSearch } from "react-icons/fi"
 import type { Listing } from "../../types/listing"
 import useListings from "../../hooks/useListings"
 import { useFavorites } from "../../context/FavoritesContext"
-import ListingDrawerComponent from "./ListingDrawer"
+import { useListingDrawer } from "../../context/ListingDrawerContext"
 import FiltersContent from "./FiltersContent"
 import ListingsFiltersSidebar from "./ListingsFiltersSidebar"
 import ListingsMobile from "./ListingsMobile"
@@ -33,12 +33,10 @@ import ListingsToolbar from "./ListingsToolbar"
 import ActiveFilters from "./ActiveFilters"
 import LoadMoreButton from "./LoadMoreButton"
 
-const ListingDrawer = memo(ListingDrawerComponent)
-
 export default function ListingsDataGrid() {
   const isMobile = useBreakpointValue({ base: true, lg: false })
   const { isOpen, onToggle } = useDisclosure()
-  const [selectedListing, setSelectedListing] = useState<Listing | null>(null)
+  const { selectedListing, openDrawer, closeDrawer } = useListingDrawer()
   const [search, setSearch] = useState("")
   const deferredSearch = useDeferredValue(search)
   const [selectedProviders, setSelectedProviders] = useState<string[]>([])
@@ -54,6 +52,14 @@ export default function ListingsDataGrid() {
 
   const { data: listings = [], isLoading, error, refetch } = useListings(200)
   const toast = useToast()
+
+  const handleSelectListing = useCallback(
+    (listing: Listing) => {
+      openDrawer(listing)
+    },
+    [openDrawer]
+  )
+
 
   if (error) {
     toast({
@@ -247,13 +253,13 @@ export default function ListingsDataGrid() {
           ) : isMobile === true ? (
             <ListingsMobile
               listings={visibleListings}
-              onSelect={setSelectedListing}
+              onSelect={handleSelectListing}
               onReset={resetFilters}
             />
           ) : (
             <ListingsTable
               listings={visibleListings}
-              onSelect={setSelectedListing}
+              onSelect={handleSelectListing}
               toggleFavorite={toggleFavorite}
               isFavorite={isFavorite}
               onReset={resetFilters}
@@ -324,12 +330,6 @@ export default function ListingsDataGrid() {
           <LoadMoreButton onClick={() => setVisibleCount((prev) => prev + 5)} />
         </Flex>
       )}
-
-      <ListingDrawer
-        isOpen={!!selectedListing}
-        onClose={() => setSelectedListing(null)}
-        listing={selectedListing}
-      />
     </Box>
   )
 }

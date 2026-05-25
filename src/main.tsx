@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import App from "./App"
 import { FavoritesProvider } from "./context/FavoritesContext"
 import { NotificationsProvider } from "./context/NotificationsContext"
+import { ListingDrawerProvider } from "./context/ListingDrawerContext"
 
 const queryClient = new QueryClient()
 
@@ -18,7 +19,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ChakraProvider theme={theme}>
         <NotificationsProvider>
           <FavoritesProvider>
-            <App />
+            <ListingDrawerProvider>
+              <App />
+            </ListingDrawerProvider>
           </FavoritesProvider>
         </NotificationsProvider>
       </ChakraProvider>

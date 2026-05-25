@@ -62,7 +62,7 @@ export const listingsService = {
     const listingResponse = await supabase
       .from("listings")
       .select(
-        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact"
+        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact, location"
       )
       .order("created_at", { ascending: false })
       .limit(limit)
@@ -97,7 +97,7 @@ export const listingsService = {
     const listingResponse = await supabase
       .from("listings")
       .select(
-        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact"
+        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact, location"
       )
       .in("id", listingIds)
 
@@ -151,7 +151,7 @@ export const listingsService = {
     const listingResponse = await supabase
       .from("listings")
       .select(
-        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact"
+        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact, location"
       )
       .in("id", reducedListingIds)
 

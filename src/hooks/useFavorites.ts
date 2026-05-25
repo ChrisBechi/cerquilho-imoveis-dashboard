@@ -33,6 +33,7 @@ export function useFavoritesQuery() {
     },
     enabled: favoriteIds.length > 0,
     staleTime: 1000 * 60,
+    keepPreviousData: true,
     refetchOnWindowFocus: false
   })
 
@@ -49,12 +50,23 @@ export function useFavoritesQuery() {
     mutationFn: (listingId: number) => favoritesService.addFavorite(listingId),
     onMutate: async (listingId) => {
       await queryClient.cancelQueries({ queryKey: ["favoriteIds"] })
+      await queryClient.cancelQueries({ queryKey: ["favorites"] })
 
       const previousFavoriteIds =
         queryClient.getQueryData<string[]>(["favoriteIds"]) ?? []
       const nextFavoriteIds = [...previousFavoriteIds, listingId.toString()]
 
+      const previousFavoriteListings =
+        queryClient.getQueryData<Listing[]>([
+          "favorites",
+          previousFavoriteIds
+        ]) ?? []
+
       queryClient.setQueryData(["favoriteIds"], nextFavoriteIds)
+      queryClient.setQueryData(
+        ["favorites", nextFavoriteIds],
+        previousFavoriteListings
+      )
 
       return {
         previousFavoriteIds
@@ -81,6 +93,7 @@ export function useFavoritesQuery() {
       favoritesService.removeFavorite(listingId),
     onMutate: async (listingId) => {
       await queryClient.cancelQueries({ queryKey: ["favoriteIds"] })
+      await queryClient.cancelQueries({ queryKey: ["favorites"] })
 
       const previousFavoriteIds =
         queryClient.getQueryData<string[]>(["favoriteIds"]) ?? []
@@ -88,7 +101,20 @@ export function useFavoritesQuery() {
         (favoriteId) => favoriteId !== listingId.toString()
       )
 
+      const previousFavoriteListings =
+        queryClient.getQueryData<Listing[]>([
+          "favorites",
+          previousFavoriteIds
+        ]) ?? []
+      const nextFavoriteListings = previousFavoriteListings.filter(
+        (listing) => listing.id !== listingId
+      )
+
       queryClient.setQueryData(["favoriteIds"], nextFavoriteIds)
+      queryClient.setQueryData(
+        ["favorites", nextFavoriteIds],
+        nextFavoriteListings
+      )
 
       return {
         previousFavoriteIds
