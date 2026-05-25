@@ -86,9 +86,7 @@ const NotificationItem = memo(
       borderBottomColor="border"
       cursor={notification.listingId ? "pointer" : "default"}
       _hover={
-        notification.listingId
-          ? { bg: "rgba(255,255,255,0.05)" }
-          : undefined
+        notification.listingId ? { bg: "rgba(255,255,255,0.05)" } : undefined
       }
       transition="background-color 0.2s"
       onClick={() => {
