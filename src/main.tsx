@@ -10,6 +10,7 @@ import App from "./App"
 import { FavoritesProvider } from "./context/FavoritesContext"
 import { NotificationsProvider } from "./context/NotificationsContext"
 import { ListingDrawerProvider } from "./context/ListingDrawerContext"
+import { NotificationTitleUpdater } from "./components/NotificationTitleUpdater"
 
 const queryClient = new QueryClient()
 
@@ -18,6 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <ChakraProvider theme={theme}>
         <NotificationsProvider>
+          <NotificationTitleUpdater />
           <FavoritesProvider>
             <ListingDrawerProvider>
               <App />

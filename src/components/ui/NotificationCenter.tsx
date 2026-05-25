@@ -276,6 +276,22 @@ const FlexBadge = memo(function FlexBadge({ count }: { count: number }) {
       color="white"
       boxShadow="0 4px 12px rgba(255,45,45,0.45)"
       border="2px solid #11151d"
+      sx={{
+        animation: "scaleInBadge 0.3s ease-out",
+        "@keyframes scaleInBadge": {
+          "0%": {
+            transform: "scale(0)",
+            opacity: 0
+          },
+          "50%": {
+            transform: "scale(1.1)"
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: 1
+          }
+        }
+      }}
     >
       {count > 99 ? "99+" : count}
     </Box>
