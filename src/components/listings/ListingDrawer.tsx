@@ -28,6 +28,7 @@ import {
 
 import { AnimatePresence, motion } from "framer-motion"
 import { MdOutlineRealEstateAgent } from "react-icons/md"
+import { BsFire } from "react-icons/bs"
 
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -47,6 +48,7 @@ import type { Listing } from "../../types/listing"
 import { FaBath, FaWhatsapp } from "react-icons/fa"
 
 import ImageLightbox from "../ImageLightbox"
+import { formatPrice } from "../../utils/formatters"
 
 import useListingDetails from "../../hooks/useListingDetails"
 
@@ -113,6 +115,26 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
   const hasMultipleImages = images.length > 1
 
   const thumbnailsRef = useRef<HTMLDivElement>(null)
+
+  const lastTapRef = useRef<number | null>(null)
+
+  function handleTouchEnd() {
+    const now = Date.now()
+
+    if (lastTapRef.current && now - lastTapRef.current < 300) {
+      // Double tap detected
+      lastTapRef.current = null
+      onLightboxOpen()
+      return
+    }
+
+    lastTapRef.current = now
+
+    // Clear after timeout to avoid memory leak
+    setTimeout(() => {
+      lastTapRef.current = null
+    }, 350)
+  }
 
   const {
     isOpen: isLightboxOpen,
@@ -216,6 +238,10 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
   }
 
+  function hasFireInsurance(listing: Listing) {
+    return /inc[eéê]ndio/i.test(listing.price)
+  }
+
   function handleImageDragEnd(
     _: MouseEvent | TouchEvent | PointerEvent,
 
@@ -271,6 +297,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                     display="block"
                     cursor="zoom-in"
                     onDoubleClick={onLightboxOpen}
+                    onTouchEnd={handleTouchEnd}
                     drag={hasMultipleImages ? "x" : undefined}
                     dragConstraints={
                       hasMultipleImages
@@ -448,7 +475,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       md: "xl"
                     }}
                   >
-                    {listing.price}
+                    {formatPrice(listing.price_numeric)}
                   </Text>
                 </Box>
               </Box>
@@ -570,6 +597,19 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                     label="Área"
                     value={`${listing.area}m²`}
                   />
+                  {hasFireInsurance(listing) && (
+                    <Flex
+                      align="center"
+                      gap={2}
+                      bg="glass"
+                      px={3}
+                      py={2}
+                      borderRadius="xl"
+                    >
+                      <BsFire />
+                      <Text>Seguro incêndio</Text>
+                    </Flex>
+                  )}
                 </Flex>
 
                 {/* PROVIDER */}

@@ -14,6 +14,7 @@ import { FiExternalLink, FiHeart, FiHome, FiMapPin } from "react-icons/fi"
 import { TbRulerMeasure } from "react-icons/tb"
 import { FaBath, FaHeart, FaWhatsapp } from "react-icons/fa"
 import type { Listing } from "../../types/listing"
+import { formatPrice } from "../../utils/formatters"
 import ListingsEmptyState from "./ListingsEmptyState"
 import { useFavorites } from "../../context/FavoritesContext"
 
@@ -116,7 +117,7 @@ function ListingsMobile({ listings, onSelect, onReset }: Props) {
               borderRadius="xl"
             >
               <Text color="white" fontWeight="bold" fontSize="xl">
-                {listing.price}
+                {formatPrice(listing.price)}
               </Text>
             </Box>
           </Box>
