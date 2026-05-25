@@ -19,7 +19,7 @@ import {
   Heading,
   useToast
 } from "@chakra-ui/react"
-import { memo, useCallback, useDeferredValue, useMemo, useState } from "react"
+import { useCallback, useDeferredValue, useMemo, useState } from "react"
 import { FiSearch } from "react-icons/fi"
 import type { Listing } from "../../types/listing"
 import useListings from "../../hooks/useListings"
@@ -36,7 +36,7 @@ import LoadMoreButton from "./LoadMoreButton"
 export default function ListingsDataGrid() {
   const isMobile = useBreakpointValue({ base: true, lg: false })
   const { isOpen, onToggle } = useDisclosure()
-  const { selectedListing, openDrawer, closeDrawer } = useListingDrawer()
+  const { openDrawer } = useListingDrawer()
   const [search, setSearch] = useState("")
   const deferredSearch = useDeferredValue(search)
   const [selectedProviders, setSelectedProviders] = useState<string[]>([])
@@ -59,7 +59,6 @@ export default function ListingsDataGrid() {
     },
     [openDrawer]
   )
-
 
   if (error) {
     toast({

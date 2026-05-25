@@ -33,7 +33,7 @@ export function useFavoritesQuery() {
     },
     enabled: favoriteIds.length > 0,
     staleTime: 1000 * 60,
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
     refetchOnWindowFocus: false
   })
 
