@@ -247,12 +247,13 @@ export default function ImageLightbox({
                 {images.map((image, index) => (
                   <Box
                     key={image}
-                    minW="120px"
+                    w="120px"
                     h="84px"
                     borderRadius="xl"
                     overflow="hidden"
                     cursor="pointer"
                     flexShrink={0}
+                    flexGrow={0}
                     border="2px solid"
                     borderColor={
                       selectedIndex === index ? "blue.400" : "transparent"
