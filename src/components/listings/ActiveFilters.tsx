@@ -1,4 +1,4 @@
-import { Button, Flex, Wrap, WrapItem } from "@chakra-ui/react"
+import { Button, Flex, Wrap, WrapItem, Fade } from "@chakra-ui/react"
 import type { Dispatch, SetStateAction } from "react"
 
 interface Props {
@@ -28,22 +28,24 @@ export default function ActiveFilters({
     <Flex my={4} justify="space-between" align="center" gap={4} flexWrap="wrap">
       <Wrap spacing={3}>
         {selectedProviders.map((provider) => (
-          <WrapItem key={provider}>
-            <Button
-              size="sm"
-              borderRadius="full"
-              bg="rgba(255,255,255,0.06)"
-              color="gray.200"
-              _hover={{ bg: "rgba(255,255,255,0.1)" }}
-              onClick={() => {
-                setSelectedProviders((prev) =>
-                  prev.filter((item) => item !== provider)
-                )
-              }}
-            >
-              {provider} ✕
-            </Button>
-          </WrapItem>
+          <Fade in={true} key={provider}>
+            <WrapItem>
+              <Button
+                size="sm"
+                borderRadius="full"
+                bg="rgba(255,255,255,0.06)"
+                color="gray.200"
+                _hover={{ bg: "rgba(255,255,255,0.1)" }}
+                onClick={() => {
+                  setSelectedProviders((prev) =>
+                    prev.filter((item) => item !== provider)
+                  )
+                }}
+              >
+                {provider} ✕
+              </Button>
+            </WrapItem>
+          </Fade>
         ))}
 
         {minBedrooms > 0 && (

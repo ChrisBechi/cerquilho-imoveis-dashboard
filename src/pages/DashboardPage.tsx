@@ -72,6 +72,19 @@ export default function DashboardPage() {
     }
   }
 
+  const [externalSelectedProviders, setExternalSelectedProviders] = useState<
+    string[] | null
+  >(null)
+
+  const handleProviderClick = (provider: string) => {
+    setExternalSelectedProviders([provider])
+    if (listingsRef.current) {
+      const elementPosition =
+        listingsRef.current.getBoundingClientRect().top + window.scrollY - 120
+      window.scrollTo({ top: elementPosition, behavior: "smooth" })
+    }
+  }
+
   const scrollToReduced = () => {
     if (reducedRef.current) {
       const elementPosition =
@@ -166,7 +179,7 @@ export default function DashboardPage() {
           spacing={6}
           my={14}
         >
-          <ProvidersChartSection />
+          <ProvidersChartSection onProviderClick={handleProviderClick} />
 
           <AveragePriceChartSection />
         </SimpleGrid>
@@ -182,7 +195,12 @@ export default function DashboardPage() {
       </FadeIn>
       <Divider mt="4rem" borderColor="gray.600" />
       <FadeIn delay={0.6} ref={listingsRef}>
-        <ListingsDataGrid />
+        <ListingsDataGrid
+          externalSelectedProviders={externalSelectedProviders}
+          onExternalClear={() => {
+            setExternalSelectedProviders(null)
+          }}
+        />
       </FadeIn>
 
       {showScrollButton && (

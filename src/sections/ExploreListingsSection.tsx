@@ -37,7 +37,7 @@ export default function ExploreListingsSection() {
   }
 
   const filteredListings = useMemo(() => {
-    const baseListings = listings.filter(
+    let baseListings = listings.filter(
       (listing: any) => !listing.is_reduced && !listing.is_rented
     )
 

@@ -16,7 +16,11 @@ import { useProviderCounts } from "../hooks/useProviderAnalytics"
 
 const COLORS = ["#4F8CFF", "#7C5CFF", "#22C55E", "#F59E0B", "#EC4899"]
 
-export default function ProvidersChartSection() {
+interface Props {
+  onProviderClick?: (provider: string) => void
+}
+
+export default function ProvidersChartSection({ onProviderClick }: Props) {
   const { data: counts = [], isLoading, error, refetch } = useProviderCounts()
   const toast = useToast()
 
@@ -192,6 +196,8 @@ export default function ProvidersChartSection() {
                     bg: "whiteAlpha.100",
                     transform: "translateY(-2px)"
                   }}
+                  onClick={() => onProviderClick?.(provider.name)}
+                  cursor={onProviderClick ? "pointer" : undefined}
                 >
                   <Stack spacing={2}>
                     <Flex align="center" gap={3}>

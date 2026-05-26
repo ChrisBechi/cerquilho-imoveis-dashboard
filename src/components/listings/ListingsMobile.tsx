@@ -117,7 +117,7 @@ function ListingsMobile({ listings, onSelect, onReset }: Props) {
               borderRadius="xl"
             >
               <Text color="white" fontWeight="bold" fontSize="xl">
-                {formatPrice(listing.price)}
+                {formatPrice(listing.price_numeric ?? listing.price)}
               </Text>
             </Box>
           </Box>

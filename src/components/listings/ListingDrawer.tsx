@@ -825,47 +825,49 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
                 {/* BUTTON */}
 
-                <Stack spacing={3} w="100%">
-                  <Link
-                    href={listing.url}
-                    isExternal
-                    _hover={{
-                      textDecoration: "none"
-                    }}
-                    flex={1}
-                  >
-                    <Button
-                      w="100%"
-                      size="lg"
-                      colorScheme="blue"
-                      variant="solid"
-                      borderRadius="xl"
-                      rightIcon={<FiExternalLink />}
-                    >
-                      Abrir anúncio
-                    </Button>
-                  </Link>
-                  {listing.contact && (
+                {!listing.is_rented && (
+                  <Stack spacing={3} w="100%">
                     <Link
-                      href={generateWhatsAppUrl(listing)}
+                      href={listing.url}
                       isExternal
-                      _hover={{ textDecoration: "none" }}
+                      _hover={{
+                        textDecoration: "none"
+                      }}
                       flex={1}
                     >
                       <Button
                         w="100%"
                         size="lg"
-                        bg="#25D366"
-                        color="white"
+                        colorScheme="blue"
+                        variant="solid"
                         borderRadius="xl"
-                        rightIcon={<FaWhatsapp />}
-                        _hover={{ bg: "#1ebc5f" }}
+                        rightIcon={<FiExternalLink />}
                       >
-                        Agendar visita
+                        Abrir anúncio
                       </Button>
                     </Link>
-                  )}
-                </Stack>
+                    {listing.contact && (
+                      <Link
+                        href={generateWhatsAppUrl(listing)}
+                        isExternal
+                        _hover={{ textDecoration: "none" }}
+                        flex={1}
+                      >
+                        <Button
+                          w="100%"
+                          size="lg"
+                          bg="#25D366"
+                          color="white"
+                          borderRadius="xl"
+                          rightIcon={<FaWhatsapp />}
+                          _hover={{ bg: "#1ebc5f" }}
+                        >
+                          Agendar visita
+                        </Button>
+                      </Link>
+                    )}
+                  </Stack>
+                )}
               </Stack>
             </VStack>
           </DrawerBody>

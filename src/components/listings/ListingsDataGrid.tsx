@@ -19,7 +19,13 @@ import {
   Heading,
   useToast
 } from "@chakra-ui/react"
-import { useCallback, useDeferredValue, useMemo, useState } from "react"
+import {
+  useCallback,
+  useDeferredValue,
+  useMemo,
+  useState,
+  useEffect
+} from "react"
 import { FiSearch } from "react-icons/fi"
 import type { Listing } from "../../types/listing"
 import useListings from "../../hooks/useListings"
@@ -33,7 +39,15 @@ import ListingsToolbar from "./ListingsToolbar"
 import ActiveFilters from "./ActiveFilters"
 import LoadMoreButton from "./LoadMoreButton"
 
-export default function ListingsDataGrid() {
+interface Props {
+  externalSelectedProviders?: string[] | null
+  onExternalClear?: () => void
+}
+
+export default function ListingsDataGrid({
+  externalSelectedProviders,
+  onExternalClear
+}: Props) {
   const isMobile = useBreakpointValue({ base: true, lg: false })
   const { isOpen, onToggle } = useDisclosure()
   const { openDrawer } = useListingDrawer()
@@ -167,7 +181,14 @@ export default function ListingsDataGrid() {
     setMinBathrooms(0)
     setMinArea(0)
     setPriceRange([0, 10000])
+    onExternalClear?.()
   }, [])
+
+  useEffect(() => {
+    if (externalSelectedProviders && externalSelectedProviders.length > 0) {
+      setSelectedProviders(externalSelectedProviders)
+    }
+  }, [externalSelectedProviders])
 
   return (
     <Box mt={14}>
