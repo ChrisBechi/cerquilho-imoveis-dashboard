@@ -43,12 +43,12 @@ import {
 
 import { TbRulerMeasure } from "react-icons/tb"
 
-import type { Listing } from "../../types/listing"
+import type { ITimelineEvent, Listing } from "../../types/listing"
 
 import { FaBath, FaWhatsapp } from "react-icons/fa"
 
 import ImageLightbox from "../ImageLightbox"
-import { formatPrice } from "../../utils/formatters"
+import { centsToBRL, formatPrice } from "../../utils/formatters"
 
 import useListingDetails from "../../hooks/useListingDetails"
 
@@ -94,6 +94,61 @@ function getGoogleMapsEmbedUrl(location: string) {
   return location
 }
 
+function getTimelineItemKey(item: ITimelineEvent) {
+  return `${item.type}-${item.date}-${item.old_price ?? ""}-${item.new_price ?? ""}`
+}
+
+function parsePriceLabel(label: string | undefined) {
+  if (!label) return undefined
+
+  const normalized = label
+    .replace(/[R$\s]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+  const value = Number(normalized)
+
+  if (!Number.isFinite(value)) {
+    return undefined
+  }
+
+  return Math.round(value * 100)
+}
+
+function getEventPrices(event: ITimelineEvent | null) {
+  if (!event) return null
+
+  const oldPrice = event.old_price ?? parsePriceLabel(event.old_price_label)
+  const newPrice = event.new_price ?? parsePriceLabel(event.new_price_label)
+
+  if (oldPrice == null || newPrice == null || oldPrice <= 0) {
+    return null
+  }
+
+  const difference = Math.abs(newPrice - oldPrice)
+  const percentage = Math.round((difference / oldPrice) * 100)
+
+  return {
+    oldPrice,
+    newPrice,
+    difference,
+    percentage,
+    isDrop: newPrice < oldPrice
+  }
+}
+
+function formatDateBR(dateStr: string) {
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return dateStr
+
+  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const year = date.getFullYear()
+  const hours = String(date.getHours()).padStart(2, "0")
+  const minutes = String(date.getMinutes()).padStart(2, "0")
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`
+}
+
 interface Props {
   isOpen: boolean
 
@@ -110,6 +165,9 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
   )
 
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedPriceEventKey, setSelectedPriceEventKey] = useState<
+    string | null
+  >(null)
 
   const selectedImage = images[selectedIndex]
   const hasMultipleImages = images.length > 1
@@ -158,6 +216,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
   useEffect(() => {
     setSelectedIndex(0)
+    setSelectedPriceEventKey(null)
   }, [listing?.id])
 
   useEffect(() => {
@@ -237,6 +296,19 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
   function previousImage() {
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
   }
+
+  const timelineItems = details?.timeline ?? []
+  const priceEvents = timelineItems.filter(
+    (item) => item.type === "price_drop" || item.type === "price_up"
+  )
+  const selectedPriceEvent =
+    priceEvents.find((item) => getTimelineItemKey(item) === selectedPriceEventKey) ??
+    priceEvents[0] ??
+    null
+  const selectedPriceChange = getEventPrices(selectedPriceEvent)
+  const selectedPriceEventKeyResolved = selectedPriceEvent
+    ? getTimelineItemKey(selectedPriceEvent)
+    : undefined
 
   function hasFireInsurance(listing: Listing) {
     return /inc[eéê]ndio/i.test(listing.price)
@@ -709,16 +781,20 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                   (() => {
                     const price_history = details?.price_history ?? []
 
-                    const timeline = details?.timeline ?? []
-
                     return (
                       <>
                         {price_history.length > 1 && (
                           <PriceHistoryChart data={price_history} />
                         )}
 
-                        {timeline.length > 0 && (
-                          <ListingTimeline items={timeline} />
+                        {timelineItems.length > 0 && (
+                          <ListingTimeline
+                            items={timelineItems}
+                            selectedItemKey={selectedPriceEventKeyResolved}
+                            onSelectPriceEvent={(item) =>
+                              setSelectedPriceEventKey(getTimelineItemKey(item))
+                            }
+                          />
                         )}
                       </>
                     )
@@ -727,12 +803,21 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
                 {/* PRICE REDUCTION */}
 
-                {listing.is_reduced && (
+                {selectedPriceChange && selectedPriceEvent && (
                   <Flex
                     justify="space-between"
                     align="center"
-                    bg="linear-gradient(135deg, rgba(255,0,0,0.10), rgba(255,80,80,0.04))"
-                    border="1px solid rgba(255,80,80,0.25)"
+                    bg={
+                      selectedPriceChange.isDrop
+                        ? "linear-gradient(135deg, rgba(255,0,0,0.10), rgba(255,80,80,0.04))"
+                        : "linear-gradient(135deg, rgba(239,68,68,0.16), rgba(255,80,80,0.05))"
+                    }
+                    border="1px solid"
+                    borderColor={
+                      selectedPriceChange.isDrop
+                        ? "rgba(255,80,80,0.25)"
+                        : "rgba(239,68,68,0.32)"
+                    }
                     borderRadius="2xl"
                     p={4}
                     position="relative"
@@ -758,71 +843,85 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                         letterSpacing="1px"
                         fontWeight="bold"
                       >
-                        Preço reduzido
+                        {selectedPriceChange.isDrop
+                          ? "Preço reduzido"
+                          : "Preço aumentado"}
                       </Text>
 
-                      {listing.old_price ? (
-                        <Flex gap={4} align="flex-end" wrap="wrap">
-                          <Stack spacing={0} flex="1" minW="130px">
-                            <Text color="gray.400" fontSize="xs">
-                              Antes
-                            </Text>
-                            <Text
-                              textDecoration="line-through"
-                              color="red.300"
-                              fontSize="md"
-                              fontWeight="semibold"
-                            >
-                              {listing.old_price}
-                            </Text>
-                          </Stack>
+                      <Flex gap={4} align="flex-end" wrap="wrap">
+                        <Stack spacing={0} flex="1" minW="130px">
+                          <Text color="gray.400" fontSize="xs">
+                            Antes
+                          </Text>
+                          <Text
+                            textDecoration={
+                              selectedPriceChange.isDrop
+                                ? "line-through"
+                                : "none"
+                            }
+                            color={
+                              selectedPriceChange.isDrop
+                                ? "red.300"
+                                : "gray.300"
+                            }
+                            fontSize="md"
+                            fontWeight="semibold"
+                          >
+                            {centsToBRL(selectedPriceChange.oldPrice)}
+                          </Text>
+                        </Stack>
 
-                          <Stack spacing={0} flex="1" minW="130px">
-                            <Text color="gray.400" fontSize="sm">
-                              Agora
-                            </Text>
-                            <Text
-                              color="white"
-                              fontSize="2xl"
-                              fontWeight="extrabold"
-                              lineHeight="1"
-                            >
-                              R${" "}
-                              {listing.price_numeric.toLocaleString("pt-BR", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              })}
-                            </Text>
-                          </Stack>
-                        </Flex>
-                      ) : (
-                        <Text color="gray.300" fontSize="sm">
-                          Preço com redução aplicada
-                        </Text>
-                      )}
+                        <Stack spacing={0} flex="1" minW="130px">
+                          <Text color="gray.400" fontSize="sm">
+                            Agora
+                          </Text>
+                          <Text
+                            color="white"
+                            fontSize="2xl"
+                            fontWeight="extrabold"
+                            lineHeight="1"
+                          >
+                            {centsToBRL(selectedPriceChange.newPrice)}
+                          </Text>
+                        </Stack>
+                      </Flex>
+
+                      <Text color="gray.500" fontSize="xs">
+                        {formatDateBR(selectedPriceEvent.date)}
+                      </Text>
                     </Stack>
 
                     <Stat textAlign="right" minW="120px" zIndex={1}>
                       <StatLabel color="gray.400" fontSize="sm">
-                        Economia
+                        {selectedPriceChange.isDrop ? "Economia" : "Aumento"}
                       </StatLabel>
                       <StatNumber
-                        color="green.300"
+                        color={
+                          selectedPriceChange.isDrop ? "green.300" : "red.300"
+                        }
                         fontSize="2xl"
                         fontWeight="bold"
                       >
-                        {listing.price_difference ?? "--"}
+                        {centsToBRL(selectedPriceChange.difference)}
                       </StatNumber>
-                      {listing.price_drop_percentage != null ? (
-                        <StatHelpText color="green.300" fontSize="md">
-                          <StatArrow type="decrease" />
-                          {listing.price_drop_percentage}%
-                        </StatHelpText>
-                      ) : null}
+                      <StatHelpText
+                        color={
+                          selectedPriceChange.isDrop ? "green.300" : "red.300"
+                        }
+                        fontSize="md"
+                      >
+                        <StatArrow
+                          type={
+                            selectedPriceChange.isDrop
+                              ? "decrease"
+                              : "increase"
+                          }
+                        />
+                        {selectedPriceChange.percentage}%
+                      </StatHelpText>
                     </Stat>
                   </Flex>
                 )}
-
                 {/* BUTTON */}
 
                 {!listing.is_rented && (

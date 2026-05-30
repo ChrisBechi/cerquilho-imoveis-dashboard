@@ -10,6 +10,8 @@ import {
   type RenderableText
 } from "recharts"
 
+import { centsToBRL } from "../utils/formatters"
+
 interface PricePoint {
   date: string
 
@@ -21,11 +23,24 @@ interface Props {
 }
 
 function formatCurrency(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0
-  }).format(value)
+  return centsToBRL(value, 2)
+}
+
+function formatShortDate(value: unknown) {
+  if (typeof value !== "string" && typeof value !== "number") {
+    return ""
+  }
+
+  const date = new Date(value)
+
+  if (isNaN(date.getTime())) {
+    return String(value)
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit"
+  }).format(date)
 }
 
 export default function PriceHistoryChart({ data }: Props) {
@@ -45,8 +60,8 @@ export default function PriceHistoryChart({ data }: Props) {
       border="1px solid"
       borderColor="whiteAlpha.100"
     >
-      <Flex justify="space-between" align="start" mb={5}>
-        <Box>
+      <Flex justify="space-between" align="start" gap={4} mb={5}>
+        <Box minW={0}>
           <Text color="gray.400" fontSize="sm" mb={1}>
             HISTÓRICO DE PREÇO
           </Text>
@@ -54,7 +69,7 @@ export default function PriceHistoryChart({ data }: Props) {
           <Heading size="md">Evolução do imóvel</Heading>
         </Box>
 
-        <Box textAlign="right">
+        <Box textAlign="right" flexShrink={0}>
           <Text
             fontSize="lg"
             fontWeight="bold"
@@ -73,7 +88,15 @@ export default function PriceHistoryChart({ data }: Props) {
 
       <Box h="220px">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+          <AreaChart
+            data={data}
+            margin={{
+              top: 28,
+              right: 28,
+              bottom: 16,
+              left: 28
+            }}
+          >
             <defs>
               <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#4F8CFF" stopOpacity={0.35} />
@@ -87,16 +110,18 @@ export default function PriceHistoryChart({ data }: Props) {
               axisLine={false}
               tickLine={false}
               padding={{
-                left: 24,
-                right: 24
+                left: 28,
+                right: 18
               }}
               tick={{
                 fill: "#94A3B8",
                 fontSize: 12
               }}
+              minTickGap={20}
+              tickFormatter={formatShortDate}
             />
 
-            <YAxis hide domain={["dataMin - 200", "dataMax + 200"]} />
+            <YAxis hide domain={["dataMin - 20000", "dataMax + 20000"]} />
 
             <Tooltip
               contentStyle={{
@@ -105,7 +130,8 @@ export default function PriceHistoryChart({ data }: Props) {
                 borderRadius: "14px",
                 color: "white"
               }}
-              formatter={(value) => formatCurrency(Number(value))}
+              formatter={(value) => [formatCurrency(Number(value)), "Preço"]}
+              labelFormatter={formatShortDate}
             />
 
             <Area
@@ -120,14 +146,9 @@ export default function PriceHistoryChart({ data }: Props) {
                 position: "top",
                 fill: "#CBD5E1",
                 fontSize: 12,
+                offset: 8,
                 formatter: (value: RenderableText) =>
-                  typeof value === "number"
-                    ? new Intl.NumberFormat("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                        maximumFractionDigits: 0
-                      }).format(value)
-                    : value
+                  typeof value === "number" ? formatCurrency(value) : value
               }}
               dot={{
                 r: 4,

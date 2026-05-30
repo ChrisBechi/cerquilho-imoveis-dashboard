@@ -23,6 +23,8 @@ interface TimelineItem {
 
 interface Props {
   items: TimelineItem[]
+  selectedItemKey?: string
+  onSelectPriceEvent?: (item: TimelineItem) => void
 }
 
 function getEventConfig(type: TimelineItem["type"]) {
@@ -57,7 +59,15 @@ function getEventConfig(type: TimelineItem["type"]) {
   }
 }
 
-export default function ListingTimeline({ items }: Props) {
+function getItemKey(item: TimelineItem) {
+  return `${item.type}-${item.date}-${item.old_price ?? ""}-${item.new_price ?? ""}`
+}
+
+export default function ListingTimeline({
+  items,
+  selectedItemKey,
+  onSelectPriceEvent
+}: Props) {
   return (
     <Box
       bg="whiteAlpha.50"
@@ -88,13 +98,29 @@ export default function ListingTimeline({ items }: Props) {
 
         {items.map((item) => {
           const config = getEventConfig(item.type)
+          const isPriceEvent =
+            item.type === "price_drop" || item.type === "price_up"
+          const itemKey = getItemKey(item)
+          const isSelected = selectedItemKey === itemKey
 
           return (
             <Flex
-              key={item.title + item.date}
+              key={itemKey}
               gap={4}
               position="relative"
               zIndex={1}
+              cursor={isPriceEvent ? "pointer" : "default"}
+              borderRadius="xl"
+              p={isPriceEvent ? 2 : 0}
+              mx={isPriceEvent ? -2 : 0}
+              bg={isSelected ? "whiteAlpha.100" : "transparent"}
+              transition="0.2s"
+              _hover={isPriceEvent ? { bg: "whiteAlpha.100" } : undefined}
+              onClick={() => {
+                if (isPriceEvent) {
+                  onSelectPriceEvent?.(item)
+                }
+              }}
             >
               <Flex
                 minW="42px"
