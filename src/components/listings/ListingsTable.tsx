@@ -129,18 +129,15 @@ const ListingRow = memo(function ListingRow({
         </HStack>
       </Td>
 
-      <Td textAlign="center">
-        <FavoriteButton
-          isFavorite={isFavorite}
-          onClick={(event) => {
-            event.stopPropagation()
-            toggleFavorite(listing.id.toString())
-          }}
-        />
-      </Td>
-
       <Td>
         <HStack spacing={1} justify="flex-end">
+          <FavoriteButton
+            isFavorite={isFavorite}
+            onClick={(event) => {
+              event.stopPropagation()
+              toggleFavorite(listing.id.toString())
+            }}
+          />
           {listing.contact && (
             <IconButton
               aria-label="Agendar visita"
@@ -203,8 +200,7 @@ function ListingsTable({
             <col style={{ width: "130px" }} />
             <col style={{ width: "205px" }} />
             <col style={{ width: "170px" }} />
-            <col style={{ width: "85px" }} />
-            <col style={{ width: "100px" }} />
+            <col style={{ width: "165px" }} />
           </colgroup>
           <Thead bg="rgba(255,255,255,0.03)">
             <Tr>
@@ -215,7 +211,6 @@ function ListingsTable({
               <Th color="gray.300">Preço</Th>
               <Th color="gray.300">Infos</Th>
               <Th color="gray.300">Status</Th>
-              <Th color="gray.300">Favorito</Th>
               <Th textAlign="right">Ações</Th>
             </Tr>
           </Thead>
