@@ -11,7 +11,7 @@ import {
 import type { Dispatch, SetStateAction } from "react"
 import FilterChip from "../ui/FilterChip"
 
-const MAX_LISTING_PRICE = 1_000_000
+const MAX_LISTING_PRICE = 10_000
 
 interface IOwnProps {
   setMinArea: Dispatch<SetStateAction<number>>
@@ -184,7 +184,7 @@ export default function FiltersContent({
         <RangeSlider
           min={0}
           max={MAX_LISTING_PRICE}
-          step={1000}
+          step={100}
           defaultValue={priceRange}
           onChangeEnd={(value) => setPriceRange(value)}
         >

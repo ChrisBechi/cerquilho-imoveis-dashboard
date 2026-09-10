@@ -47,7 +47,7 @@ interface Props {
 }
 
 const LISTINGS_PER_PAGE = 5
-const MAX_LISTING_PRICE = 1_000_000
+const MAX_LISTING_PRICE = 10_000
 
 export default function ListingsDataGrid({
   externalSelectedProviders,
