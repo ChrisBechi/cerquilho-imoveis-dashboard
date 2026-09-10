@@ -9,6 +9,8 @@ import {
   Flex,
   Icon,
   Input,
+  InputGroup,
+  InputLeftElement,
   Stack,
   Text,
   useBreakpointValue,
@@ -208,14 +210,17 @@ export default function ListingsDataGrid({
         />
       )}
 
-      <Box
-        position="relative"
-        w={{ base: "100%", md: "460px" }}
-        maxW="100%"
-        mb={5}
-      >
+      <InputGroup w="100%" mb={5}>
+        <InputLeftElement
+          h="46px"
+          pointerEvents="none"
+          color="gray.400"
+        >
+          <Icon as={FiSearch} fontSize="17px" />
+        </InputLeftElement>
+
         <Input
-          pl={11}
+          pl="44px"
           h="46px"
           borderRadius="xl"
           placeholder="Buscar imóvel..."
@@ -236,18 +241,7 @@ export default function ListingsDataGrid({
             boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.16)"
           }}
         />
-
-        <Icon
-          as={FiSearch}
-          position="absolute"
-          left={4}
-          top="50%"
-          transform="translateY(-50%)"
-          color="gray.400"
-          fontSize="17px"
-          pointerEvents="none"
-        />
-      </Box>
+      </InputGroup>
 
       <Flex gap={5} align="start">
         <Box flex={1} minW={0}>
