@@ -126,6 +126,35 @@ export const listingsService = {
       .filter((listing): listing is Listing => Boolean(listing))
   },
 
+  async listRented({ limit = 200 } = {}) {
+    const listingResponse = await supabase
+      .from("listings")
+      .select(
+        "id, title, provider, neighborhood, bedrooms, bathrooms, area, thumbnail_url, current_price, price_label, rented_at, url, code, contact, location"
+      )
+      .not("rented_at", "is", null)
+      .order("rented_at", { ascending: false })
+      .limit(limit)
+
+    if (listingResponse.error) throw listingResponse.error
+
+    const listings = listingResponse.data ?? []
+    const listingIds = listings.map((listing: any) => listing.id)
+    if (!listingIds.length) return [] as Listing[]
+
+    const { imagesByListing, eventsByListing, historyByListing } =
+      await fetchListingRelations(listingIds)
+
+    return listings.map((row: any) =>
+      normalizeListing(
+        row,
+        imagesByListing.get(row.id) ?? [],
+        eventsByListing.get(row.id) ?? [],
+        historyByListing.get(row.id) ?? []
+      )
+    )
+  },
+
   async listReduced({ limit = 50 } = {}) {
     const eventsResponse = await supabase
       .from("listing_events")

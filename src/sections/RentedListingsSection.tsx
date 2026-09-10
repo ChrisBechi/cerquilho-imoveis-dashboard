@@ -5,7 +5,7 @@ import { FiCheckCircle } from "react-icons/fi"
 import ListingCard from "../components/listings/ListingCard"
 import LoadMoreButton from "../components/listings/LoadMoreButton"
 import { useFavorites } from "../context/FavoritesContext"
-import useListings from "../hooks/useListings"
+import useRentedListings from "../hooks/useRentedListings"
 import { Skeleton } from "@chakra-ui/react"
 import { useState } from "react"
 
@@ -14,7 +14,7 @@ const ITEMS_PER_PAGE = 8
 export default function RentedListingsSection() {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const { isFavorite, toggleFavorite } = useFavorites()
-  const { data: listings = [], isLoading } = useListings(50)
+  const { data: listings = [], isLoading } = useRentedListings()
   const rentedListings = listings
     .filter((listing: any) => listing.is_rented)
     .sort((a, b) => {
