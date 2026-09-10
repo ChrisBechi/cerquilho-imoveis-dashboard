@@ -9,7 +9,7 @@ import useListings from "../hooks/useListings"
 import { Skeleton } from "@chakra-ui/react"
 import { useState } from "react"
 
-const ITEMS_PER_PAGE = 8
+const ITEMS_PER_PAGE = 4
 
 export default function RentedListingsSection() {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)

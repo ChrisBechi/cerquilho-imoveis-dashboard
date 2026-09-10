@@ -9,7 +9,7 @@ import useReducedListings from "../hooks/useReducedListings"
 import { Skeleton } from "@chakra-ui/react"
 import { useState } from "react"
 
-const ITEMS_PER_PAGE = 8
+const ITEMS_PER_PAGE = 4
 
 export default function ReducedListingsSection() {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
