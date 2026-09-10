@@ -9,18 +9,21 @@ import {
   useToast
 } from "@chakra-ui/react"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import ListingsEmptyState from "../components/listings/ListingsEmptyState"
 import ListingsGrid from "../components/listings/ListingsGrid"
+import LoadMoreButton from "../components/listings/LoadMoreButton"
 
 import useListings from "../hooks/useListings"
 import { useFavorites } from "../context/FavoritesContext"
 
 type TabType = "favorites" | "cheap" | "expensive" | "new"
+const ITEMS_PER_PAGE = 8
 
 export default function ExploreListingsSection() {
   const [activeTab, setActiveTab] = useState<TabType>("new")
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const { isFavorite, favorites, favoriteListings, toggleFavorite } =
     useFavorites()
 
@@ -64,9 +67,13 @@ export default function ExploreListingsSection() {
   }, [activeTab, favoriteListings, isFavorite, listings])
 
   const limitedListings = useMemo(
-    () => filteredListings.slice(0, 8),
-    [filteredListings]
+    () => filteredListings.slice(0, visibleCount),
+    [filteredListings, visibleCount]
   )
+
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE)
+  }, [activeTab])
 
   if (!listings.length) {
     return null
@@ -151,11 +158,23 @@ export default function ExploreListingsSection() {
           description="Tente alterar os filtros, remover termos da busca ou redefinir os filtros aplicados."
         />
       ) : (
-        <ListingsGrid
-          listings={limitedListings}
-          isFavorite={(id) => isFavorite(id)}
-          onToggleFavorite={toggleFavorite}
-        />
+        <>
+          <ListingsGrid
+            listings={limitedListings}
+            isFavorite={(id) => isFavorite(id)}
+            onToggleFavorite={toggleFavorite}
+          />
+          {visibleCount < filteredListings.length && (
+            <HStack justify="center" mt={6}>
+              <LoadMoreButton
+                label="Ver mais"
+                onClick={() =>
+                  setVisibleCount((count) => count + ITEMS_PER_PAGE)
+                }
+              />
+            </HStack>
+          )}
+        </>
       )}
     </Box>
   )

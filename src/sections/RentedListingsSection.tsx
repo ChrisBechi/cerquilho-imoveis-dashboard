@@ -3,11 +3,16 @@ import { Box, Grid, Heading, HStack, Text } from "@chakra-ui/react"
 import { FiCheckCircle } from "react-icons/fi"
 
 import ListingCard from "../components/listings/ListingCard"
+import LoadMoreButton from "../components/listings/LoadMoreButton"
 import { useFavorites } from "../context/FavoritesContext"
 import useListings from "../hooks/useListings"
 import { Skeleton } from "@chakra-ui/react"
+import { useState } from "react"
+
+const ITEMS_PER_PAGE = 8
 
 export default function RentedListingsSection() {
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const { isFavorite, toggleFavorite } = useFavorites()
   const { data: listings = [], isLoading } = useListings(50)
   const rentedListings = listings
@@ -56,7 +61,7 @@ export default function RentedListingsSection() {
               <Skeleton key={idx} height="220px" borderRadius="2xl" />
             ))
           : rentedListings
-              .slice(0, 8)
+              .slice(0, visibleCount)
               .map((listing) => (
                 <ListingCard
                   key={listing.id}
@@ -66,6 +71,17 @@ export default function RentedListingsSection() {
                 />
               ))}
       </Grid>
+
+      {visibleCount < rentedListings.length && (
+        <HStack justify="center" mt={6}>
+          <LoadMoreButton
+            label="Ver mais"
+            onClick={() =>
+              setVisibleCount((count) => count + ITEMS_PER_PAGE)
+            }
+          />
+        </HStack>
+      )}
     </Box>
   )
 }

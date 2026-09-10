@@ -3,11 +3,16 @@ import { Box, Grid, Heading, HStack, Text } from "@chakra-ui/react"
 import { FiTrendingDown } from "react-icons/fi"
 
 import ListingCard from "../components/listings/ListingCard"
+import LoadMoreButton from "../components/listings/LoadMoreButton"
 import { useFavorites } from "../context/FavoritesContext"
 import useReducedListings from "../hooks/useReducedListings"
 import { Skeleton } from "@chakra-ui/react"
+import { useState } from "react"
+
+const ITEMS_PER_PAGE = 8
 
 export default function ReducedListingsSection() {
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const { isFavorite, toggleFavorite } = useFavorites()
   const { data: reducedListings = [], isLoading } = useReducedListings(50)
 
@@ -50,7 +55,7 @@ export default function ReducedListingsSection() {
               <Skeleton key={idx} height="220px" borderRadius="2xl" />
             ))
           : sortedReducedListings
-              .slice(0, 8)
+              .slice(0, visibleCount)
               .map((listing) => (
                 <ListingCard
                   key={listing.id}
@@ -60,6 +65,17 @@ export default function ReducedListingsSection() {
                 />
               ))}
       </Grid>
+
+      {visibleCount < sortedReducedListings.length && (
+        <HStack justify="center" mt={6}>
+          <LoadMoreButton
+            label="Ver mais"
+            onClick={() =>
+              setVisibleCount((count) => count + ITEMS_PER_PAGE)
+            }
+          />
+        </HStack>
+      )}
     </Box>
   )
 }
