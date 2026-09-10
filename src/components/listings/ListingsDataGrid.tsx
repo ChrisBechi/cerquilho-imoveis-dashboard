@@ -224,41 +224,41 @@ export default function ListingsDataGrid({
         />
       )}
 
-      <InputGroup w="100%" mb={5}>
-        <InputLeftElement
-          h="46px"
-          pointerEvents="none"
-          color="gray.400"
-        >
-          <Icon as={FiSearch} fontSize="17px" />
-        </InputLeftElement>
-
-        <Input
-          pl="44px"
-          h="46px"
-          borderRadius="xl"
-          placeholder="Buscar imóvel..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          bg="rgba(30, 41, 59, 0.72)"
-          border="1px solid"
-          borderColor="rgba(148, 163, 184, 0.18)"
-          boxShadow="0 8px 24px rgba(0, 0, 0, 0.12)"
-          transition="border-color 0.2s, box-shadow 0.2s, background 0.2s"
-          _hover={{
-            bg: "rgba(30, 41, 59, 0.88)",
-            borderColor: "rgba(148, 163, 184, 0.3)"
-          }}
-          _focusVisible={{
-            bg: "rgba(30, 41, 59, 0.96)",
-            borderColor: "blue.400",
-            boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.16)"
-          }}
-        />
-      </InputGroup>
-
       <Flex gap={5} align="start">
         <Box flex={1} minW={0}>
+          <InputGroup w="100%" mb={5}>
+            <InputLeftElement
+              h="46px"
+              pointerEvents="none"
+              color="gray.400"
+            >
+              <Icon as={FiSearch} fontSize="17px" />
+            </InputLeftElement>
+
+            <Input
+              pl="44px"
+              h="46px"
+              borderRadius="xl"
+              placeholder="Buscar imóvel..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              bg="rgba(30, 41, 59, 0.72)"
+              border="1px solid"
+              borderColor="rgba(148, 163, 184, 0.18)"
+              boxShadow="0 8px 24px rgba(0, 0, 0, 0.12)"
+              transition="border-color 0.2s, box-shadow 0.2s, background 0.2s"
+              _hover={{
+                bg: "rgba(30, 41, 59, 0.88)",
+                borderColor: "rgba(148, 163, 184, 0.3)"
+              }}
+              _focusVisible={{
+                bg: "rgba(30, 41, 59, 0.96)",
+                borderColor: "blue.400",
+                boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.16)"
+              }}
+            />
+          </InputGroup>
+
           {isLoading ? (
             <SimpleGrid columns={{ base: 1, md: 2, xl: 1 }} spacing={4}>
               {Array.from({ length: 4 }).map((_, idx) => (
@@ -299,6 +299,16 @@ export default function ListingsDataGrid({
               isFavorite={isFavorite}
               onReset={resetFilters}
             />
+          )}
+
+          {visibleCount < filteredListings.length && (
+            <Flex justify="center" mt={6}>
+              <LoadMoreButton
+                onClick={() =>
+                  setVisibleCount((prev) => prev + LISTINGS_PER_PAGE)
+                }
+              />
+            </Flex>
           )}
         </Box>
 
@@ -359,16 +369,6 @@ export default function ListingsDataGrid({
           </Drawer>
         )}
       </Flex>
-
-      {visibleCount < filteredListings.length && (
-        <Flex justify="center" mt={6}>
-          <LoadMoreButton
-            onClick={() =>
-              setVisibleCount((prev) => prev + LISTINGS_PER_PAGE)
-            }
-          />
-        </Flex>
-      )}
 
     </Box>
   )
