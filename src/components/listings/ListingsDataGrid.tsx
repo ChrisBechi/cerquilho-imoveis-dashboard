@@ -46,6 +46,8 @@ interface Props {
   onExternalClear?: () => void
 }
 
+const LISTINGS_PER_PAGE = 5
+
 export default function ListingsDataGrid({
   externalSelectedProviders,
   onExternalClear
@@ -63,7 +65,7 @@ export default function ListingsDataGrid({
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
   type SortOption = "recent" | "cheap" | "expensive" | "area"
   const sortBy = "recent" as SortOption
-  const [visibleCount, setVisibleCount] = useState(5)
+  const [visibleCount, setVisibleCount] = useState(LISTINGS_PER_PAGE)
   const { toggleFavorite, isFavorite } = useFavorites()
 
   const { data: listings = [], isLoading, error, refetch } = useListings(200)
@@ -191,6 +193,18 @@ export default function ListingsDataGrid({
       setSelectedProviders(externalSelectedProviders)
     }
   }, [externalSelectedProviders])
+
+  useEffect(() => {
+    setVisibleCount(LISTINGS_PER_PAGE)
+  }, [
+    deferredSearch,
+    selectedProviders,
+    minBedrooms,
+    minBathrooms,
+    minArea,
+    priceRange,
+    selectedStatuses
+  ])
 
   return (
     <Box mt={14}>
@@ -347,8 +361,30 @@ export default function ListingsDataGrid({
       </Flex>
 
       {visibleCount < filteredListings.length && (
-        <Flex justify="center" mt={6}>
-          <LoadMoreButton onClick={() => setVisibleCount((prev) => prev + 5)} />
+        <Flex
+          justify="center"
+          position="sticky"
+          bottom={4}
+          zIndex={10}
+          mt={6}
+          pointerEvents="none"
+        >
+          <Box
+            p={2}
+            borderRadius="2xl"
+            bg="rgba(15, 23, 42, 0.82)"
+            border="1px solid"
+            borderColor="rgba(148, 163, 184, 0.2)"
+            boxShadow="0 12px 32px rgba(0, 0, 0, 0.3)"
+            backdropFilter="blur(12px)"
+            pointerEvents="auto"
+          >
+          <LoadMoreButton
+            onClick={() =>
+              setVisibleCount((prev) => prev + LISTINGS_PER_PAGE)
+            }
+          />
+          </Box>
         </Flex>
       )}
     </Box>
