@@ -209,37 +209,44 @@ export default function ListingsDataGrid({
       )}
 
       <Box
-        bg="surfaceSecondary"
-        borderRadius="2xl"
-        border="1px solid"
-        borderColor="border"
-        p={5}
+        position="relative"
+        w={{ base: "100%", md: "460px" }}
+        maxW="100%"
         mb={5}
       >
-        <Flex gap={4} flexWrap="wrap">
-          <Box flex={1} minW="280px" position="relative">
-            <Input
-              pl={12}
-              h="58px"
-              borderRadius="2xl"
-              placeholder="Buscar imóvel..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              bg="glass"
-              borderColor="border"
-            />
+        <Input
+          pl={11}
+          h="46px"
+          borderRadius="xl"
+          placeholder="Buscar imóvel..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          bg="rgba(30, 41, 59, 0.72)"
+          border="1px solid"
+          borderColor="rgba(148, 163, 184, 0.18)"
+          boxShadow="0 8px 24px rgba(0, 0, 0, 0.12)"
+          transition="border-color 0.2s, box-shadow 0.2s, background 0.2s"
+          _hover={{
+            bg: "rgba(30, 41, 59, 0.88)",
+            borderColor: "rgba(148, 163, 184, 0.3)"
+          }}
+          _focusVisible={{
+            bg: "rgba(30, 41, 59, 0.96)",
+            borderColor: "blue.400",
+            boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.16)"
+          }}
+        />
 
-            <Icon
-              as={FiSearch}
-              position="absolute"
-              left={4}
-              top="50%"
-              transform="translateY(-50%)"
-              color="gray.500"
-              fontSize="18px"
-            />
-          </Box>
-        </Flex>
+        <Icon
+          as={FiSearch}
+          position="absolute"
+          left={4}
+          top="50%"
+          transform="translateY(-50%)"
+          color="gray.400"
+          fontSize="17px"
+          pointerEvents="none"
+        />
       </Box>
 
       <Flex gap={5} align="start">
