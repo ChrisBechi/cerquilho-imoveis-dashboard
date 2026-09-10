@@ -47,6 +47,7 @@ interface Props {
 }
 
 const LISTINGS_PER_PAGE = 5
+const MAX_LISTING_PRICE = 1_000_000
 
 export default function ListingsDataGrid({
   externalSelectedProviders,
@@ -61,7 +62,7 @@ export default function ListingsDataGrid({
   const [minBedrooms, setMinBedrooms] = useState(0)
   const [minBathrooms, setMinBathrooms] = useState(0)
   const [minArea, setMinArea] = useState(0)
-  const [priceRange, setPriceRange] = useState([0, 10000])
+  const [priceRange, setPriceRange] = useState([0, MAX_LISTING_PRICE])
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
   type SortOption = "recent" | "cheap" | "expensive" | "area"
   const sortBy = "recent" as SortOption
@@ -175,7 +176,7 @@ export default function ListingsDataGrid({
     minBathrooms > 0 ||
     minArea > 0 ||
     priceRange[0] > 0 ||
-    priceRange[1] < 10000
+    priceRange[1] < MAX_LISTING_PRICE
 
   const resetFilters = useCallback(() => {
     setSearch("")
@@ -184,7 +185,7 @@ export default function ListingsDataGrid({
     setMinBedrooms(0)
     setMinBathrooms(0)
     setMinArea(0)
-    setPriceRange([0, 10000])
+    setPriceRange([0, MAX_LISTING_PRICE])
     onExternalClear?.()
   }, [])
 

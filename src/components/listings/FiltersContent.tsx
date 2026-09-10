@@ -11,6 +11,8 @@ import {
 import type { Dispatch, SetStateAction } from "react"
 import FilterChip from "../ui/FilterChip"
 
+const MAX_LISTING_PRICE = 1_000_000
+
 interface IOwnProps {
   setMinArea: Dispatch<SetStateAction<number>>
   minArea: number
@@ -174,14 +176,15 @@ export default function FiltersContent({
           </Text>
 
           <Text color="blue.300" fontWeight="bold" fontSize="sm">
-            R$ {priceRange[0]} — R$ {priceRange[1]}
+            R$ {priceRange[0].toLocaleString("pt-BR")} — R${" "}
+            {priceRange[1].toLocaleString("pt-BR")}
           </Text>
         </Flex>
 
         <RangeSlider
           min={0}
-          max={10000}
-          step={100}
+          max={MAX_LISTING_PRICE}
+          step={1000}
           defaultValue={priceRange}
           onChangeEnd={(value) => setPriceRange(value)}
         >
