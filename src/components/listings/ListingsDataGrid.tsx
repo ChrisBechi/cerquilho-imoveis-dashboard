@@ -257,6 +257,16 @@ export default function ListingsDataGrid({
         />
       </InputGroup>
 
+      {visibleCount < filteredListings.length && (
+        <Flex justify="flex-end" mb={4}>
+          <LoadMoreButton
+            onClick={() =>
+              setVisibleCount((prev) => prev + LISTINGS_PER_PAGE)
+            }
+          />
+        </Flex>
+      )}
+
       <Flex gap={5} align="start">
         <Box flex={1} minW={0}>
           {isLoading ? (
@@ -360,33 +370,6 @@ export default function ListingsDataGrid({
         )}
       </Flex>
 
-      {visibleCount < filteredListings.length && (
-        <Flex
-          justify="center"
-          position="sticky"
-          bottom={4}
-          zIndex={10}
-          mt={6}
-          pointerEvents="none"
-        >
-          <Box
-            p={2}
-            borderRadius="2xl"
-            bg="rgba(15, 23, 42, 0.82)"
-            border="1px solid"
-            borderColor="rgba(148, 163, 184, 0.2)"
-            boxShadow="0 12px 32px rgba(0, 0, 0, 0.3)"
-            backdropFilter="blur(12px)"
-            pointerEvents="auto"
-          >
-          <LoadMoreButton
-            onClick={() =>
-              setVisibleCount((prev) => prev + LISTINGS_PER_PAGE)
-            }
-          />
-          </Box>
-        </Flex>
-      )}
     </Box>
   )
 }
