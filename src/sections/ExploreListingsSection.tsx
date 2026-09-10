@@ -19,7 +19,7 @@ import useListings from "../hooks/useListings"
 import { useFavorites } from "../context/FavoritesContext"
 
 type TabType = "favorites" | "cheap" | "expensive" | "new"
-const ITEMS_PER_PAGE = 4
+const ITEMS_PER_PAGE = 8
 
 export default function ExploreListingsSection() {
   const [activeTab, setActiveTab] = useState<TabType>("new")
