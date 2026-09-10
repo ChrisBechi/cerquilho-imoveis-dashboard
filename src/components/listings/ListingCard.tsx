@@ -247,6 +247,7 @@ function ListingCard({
   )
 
   const selectedImage = images[selectedIndex]
+  const displayedImage = selectedImage || "/property-placeholder.svg"
   const hasMultipleImages = images.length > 1
 
   const nextImage = () => {
@@ -331,9 +332,13 @@ function ListingCard({
       <Box position="relative" overflow="hidden">
         <AnimatePresence mode="wait">
           <MotionImage
-            key={selectedImage}
-            src={`${selectedImage}?w=800&q=80`}
+            key={displayedImage}
+            src={displayedImage}
             alt={listing.title}
+            onError={(event) => {
+              event.currentTarget.onerror = null
+              event.currentTarget.src = "/property-placeholder.svg"
+            }}
             h="240px"
             w="100%"
             objectFit="cover"

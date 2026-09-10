@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#182235"/>
+      <stop offset="1" stop-color="#101827"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <path d="M270 290 400 185l130 105v115H435v-80h-70v80h-95z" fill="none" stroke="#52647f" stroke-width="18" stroke-linejoin="round"/>
+  <path d="m238 313 162-132 162 132" fill="none" stroke="#6f86a8" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="400" y="455" fill="#8ea0ba" font-family="Arial, sans-serif" font-size="28" text-anchor="middle">Imagem sendo atualizada</text>
+</svg>

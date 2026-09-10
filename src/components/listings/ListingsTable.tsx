@@ -58,32 +58,39 @@ const ListingRow = memo(function ListingRow({
       onClick={() => onSelect(listing)}
     >
       <Td py={5}>
-        <HStack spacing={4}>
+        <HStack spacing={4} align="center">
           <Image
             loading="lazy"
-            src={listing.thumbnail_url}
+            src={listing.thumbnail_url || "/property-placeholder.svg"}
+            onError={(event) => {
+              event.currentTarget.onerror = null
+              event.currentTarget.src = "/property-placeholder.svg"
+            }}
             w="110px"
             h="78px"
             borderRadius="xl"
             objectFit="cover"
+            flexShrink={0}
           />
 
-          <Box>
-            <Text fontWeight="bold" fontSize="md" mb={1}>
+          <Box minW={0}>
+            <Text fontWeight="bold" fontSize="md" mb={1} noOfLines={2}>
               {listing.title}
             </Text>
 
-            <Text color="gray.400" fontSize="sm">
+            <Text color="gray.400" fontSize="sm" noOfLines={1}>
               {listing.neighborhood}
             </Text>
           </Box>
         </HStack>
       </Td>
 
-      <Td>{listing.provider}</Td>
+      <Td>
+        <Text noOfLines={2}>{listing.provider}</Text>
+      </Td>
 
       <Td>
-        <Text fontWeight="bold" color="blue.300">
+        <Text fontWeight="bold" color="blue.300" whiteSpace="nowrap">
           R${" "}
           {listing.price_numeric.toLocaleString("pt-BR", {
             minimumFractionDigits: 2,
@@ -93,7 +100,7 @@ const ListingRow = memo(function ListingRow({
       </Td>
 
       <Td>
-        <HStack spacing={5}>
+        <HStack spacing={5} whiteSpace="nowrap">
           <HStack>
             <Icon as={FiHome} />
             <Text>{listing.bedrooms}</Text>
@@ -115,7 +122,7 @@ const ListingRow = memo(function ListingRow({
       </Td>
 
       <Td>
-        <HStack>
+        <HStack flexWrap="wrap">
           {listing.is_new && <Badge colorScheme="green">Novo</Badge>}
           {listing.is_reduced && <Badge colorScheme="red">Reduziu</Badge>}
           {listing.is_rented && <Badge colorScheme="purple">Alugado</Badge>}
@@ -133,32 +140,30 @@ const ListingRow = memo(function ListingRow({
       </Td>
 
       <Td>
-        <IconButton
-          aria-label="Abrir anúncio"
-          color="blue.300"
-          icon={<FiExternalLink />}
-          variant="ghost"
-          onClick={(event) => {
-            event.stopPropagation()
-            window.open(listing.url, "_blank")
-            {
-              listing.contact && (
-                <Td>
-                  <IconButton
-                    aria-label="Agendar visita"
-                    color="green.300"
-                    icon={<FaWhatsapp />}
-                    variant="ghost"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      window.open(generateWhatsAppUrl(listing), "_blank")
-                    }}
-                  />
-                </Td>
-              )
-            }
-          }}
-        />
+        <HStack spacing={1} justify="flex-end">
+          {listing.contact && (
+            <IconButton
+              aria-label="Agendar visita"
+              color="green.300"
+              icon={<FaWhatsapp />}
+              variant="ghost"
+              onClick={(event) => {
+                event.stopPropagation()
+                window.open(generateWhatsAppUrl(listing), "_blank")
+              }}
+            />
+          )}
+          <IconButton
+            aria-label="Abrir anúncio"
+            color="blue.300"
+            icon={<FiExternalLink />}
+            variant="ghost"
+            onClick={(event) => {
+              event.stopPropagation()
+              window.open(listing.url, "_blank")
+            }}
+          />
+        </HStack>
       </Td>
     </Tr>
   )
@@ -191,7 +196,16 @@ function ListingsTable({
       bg="surfaceSecondary"
     >
       <Box overflowX="auto">
-        <Table variant="simple">
+        <Table variant="simple" style={{ tableLayout: "fixed" }} minW="1160px">
+          <colgroup>
+            <col style={{ width: "340px" }} />
+            <col style={{ width: "150px" }} />
+            <col style={{ width: "130px" }} />
+            <col style={{ width: "205px" }} />
+            <col style={{ width: "170px" }} />
+            <col style={{ width: "85px" }} />
+            <col style={{ width: "100px" }} />
+          </colgroup>
           <Thead bg="rgba(255,255,255,0.03)">
             <Tr>
               <Th color="gray.300" py={5}>
@@ -202,7 +216,7 @@ function ListingsTable({
               <Th color="gray.300">Infos</Th>
               <Th color="gray.300">Status</Th>
               <Th color="gray.300">Favorito</Th>
-              <Th />
+              <Th textAlign="right">Ações</Th>
             </Tr>
           </Thead>
 

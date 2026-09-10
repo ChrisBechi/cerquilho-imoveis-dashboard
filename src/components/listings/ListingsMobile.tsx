@@ -64,7 +64,11 @@ function ListingsMobile({ listings, onSelect, onReset }: Props) {
           <Box position="relative">
             <Image
               loading="lazy"
-              src={listing.thumbnail_url}
+              src={listing.thumbnail_url || "/property-placeholder.svg"}
+              onError={(event) => {
+                event.currentTarget.onerror = null
+                event.currentTarget.src = "/property-placeholder.svg"
+              }}
               objectFit="cover"
               h="220px"
               w="100%"

@@ -170,6 +170,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
   >(null)
 
   const selectedImage = images[selectedIndex]
+  const displayedImage = selectedImage || "/property-placeholder.svg"
   const hasMultipleImages = images.length > 1
 
   const thumbnailsRef = useRef<HTMLDivElement>(null)
@@ -360,8 +361,12 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
               >
                 <AnimatePresence mode="wait">
                   <MotionImage
-                    key={selectedImage}
-                    src={selectedImage}
+                    key={displayedImage}
+                    src={displayedImage}
+                    onError={(event) => {
+                      event.currentTarget.onerror = null
+                      event.currentTarget.src = "/property-placeholder.svg"
+                    }}
                     alt={listing.title}
                     w="100%"
                     h="100%"

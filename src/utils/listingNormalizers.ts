@@ -135,8 +135,13 @@ const getIsReduced = (events: ListingEventRow[]) => {
 
 const normalizeImages = (
   images: ListingImageRow[] | undefined,
-  thumbnailUrl?: string
+  thumbnailUrl?: string,
+  isRented = false
 ) => {
+  if (isRented) {
+    return ["https://i.imgur.com/qK0Bms2.png?w=800&q=80"]
+  }
+
   const normalized = (images ?? [])
     .map(getImageUrl)
     .filter((url): url is string => Boolean(url))
@@ -186,7 +191,11 @@ export function normalizeListing(
     bathrooms: row.bathrooms,
     area: row.area,
     thumbnail_url: row.thumbnail_url,
-    images: normalizeImages(images, row.thumbnail_url),
+    images: normalizeImages(
+      images,
+      row.thumbnail_url,
+      row.rented_at != null
+    ),
     is_new: getIsNew(events),
     is_reduced: getIsReduced(events),
     is_rented: row.rented_at != null,
