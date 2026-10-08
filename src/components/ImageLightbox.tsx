@@ -43,6 +43,10 @@ export default function ImageLightbox({
 
   const [scale, setScale] = useState(1)
   const [translate, setTranslate] = useState({ x: 0, y: 0 })
+  const currentImage = images[selectedIndex] || ""
+  const isRentedCover = currentImage.startsWith(
+    "https://i.imgur.com/qK0Bms2.png"
+  )
   const minScale = 1
   const maxScale = 4
 
@@ -482,8 +486,8 @@ export default function ImageLightbox({
                   ref={(el: HTMLImageElement | null) => {
                     imgRef.current = el
                   }}
-                  key={images[selectedIndex]}
-                  src={images[selectedIndex]}
+                  key={currentImage}
+                  src={currentImage}
                   maxW="92vw"
                   maxH="78vh"
                   objectFit="contain"
@@ -502,7 +506,8 @@ export default function ImageLightbox({
                     transformOrigin: "center center",
                     touchAction: "none",
                     cursor: scale > 1 ? "grab" : "zoom-in",
-                    willChange: "transform"
+                    willChange: "transform",
+                    clipPath: isRentedCover ? "inset(3px)" : undefined
                   }}
                   initial={{
                     opacity: 0
