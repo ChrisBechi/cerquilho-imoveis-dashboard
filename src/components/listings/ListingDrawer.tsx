@@ -359,8 +359,8 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
               <Box
                 position="relative"
                 w="100%"
-                h={isRentedCover ? "auto" : { base: "350px", md: "320px" }}
-                aspectRatio={isRentedCover ? RENTED_COVER_ASPECT_RATIO : undefined}
+                h="auto"
+                aspectRatio={RENTED_COVER_ASPECT_RATIO}
                 overflow="hidden"
                 bg="black"
               >
