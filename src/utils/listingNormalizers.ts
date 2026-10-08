@@ -138,13 +138,19 @@ const normalizeImages = (
   thumbnailUrl?: string,
   isRented = false
 ) => {
-  if (isRented) {
-    return ["https://i.imgur.com/qK0Bms2.png?w=800&q=80"]
-  }
-
   const normalized = (images ?? [])
     .map(getImageUrl)
     .filter((url): url is string => Boolean(url))
+
+  if (isRented) {
+    const rentedImage = "https://i.imgur.com/qK0Bms2.png?w=800&q=80"
+    return [
+      rentedImage,
+      ...normalized.filter(
+        (url) => !url.startsWith("https://i.imgur.com/qK0Bms2.png")
+      )
+    ]
+  }
 
   if (normalized.length) return normalized
   if (thumbnailUrl) return [thumbnailUrl]
