@@ -16,6 +16,11 @@ import { AnimatePresence, motion } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi"
+import {
+  isRentedCoverImage,
+  RENTED_COVER_CLIP_PATH,
+  RENTED_COVER_SCALE
+} from "../utils/rentedCover"
 
 const MotionImage = motion(Image)
 
@@ -44,9 +49,7 @@ export default function ImageLightbox({
   const [scale, setScale] = useState(1)
   const [translate, setTranslate] = useState({ x: 0, y: 0 })
   const currentImage = images[selectedIndex] || ""
-  const isRentedCover = currentImage.startsWith(
-    "https://i.imgur.com/qK0Bms2.png"
-  )
+  const isRentedCover = isRentedCoverImage(currentImage)
   const minScale = 1
   const maxScale = 4
 
@@ -488,6 +491,7 @@ export default function ImageLightbox({
                   }}
                   key={currentImage}
                   src={currentImage}
+                  referrerPolicy={isRentedCover ? "no-referrer" : undefined}
                   maxW="92vw"
                   maxH="78vh"
                   objectFit="contain"
@@ -508,7 +512,7 @@ export default function ImageLightbox({
                     cursor: scale > 1 ? "grab" : "zoom-in",
                     willChange: "transform",
                     clipPath: isRentedCover
-                      ? "inset(8px round 16px)"
+                      ? RENTED_COVER_CLIP_PATH
                       : undefined
                   }}
                   initial={{
@@ -583,7 +587,20 @@ export default function ImageLightbox({
                     }}
                     onClick={() => setSelectedIndex(index)}
                   >
-                    <Image src={image} w="100%" h="100%" objectFit="cover" />
+                    <Image
+                      src={image}
+                      referrerPolicy={
+                        isRentedCoverImage(image) ? "no-referrer" : undefined
+                      }
+                      w="100%"
+                      h="100%"
+                      objectFit="cover"
+                      transform={
+                        isRentedCoverImage(image)
+                          ? `scale(${RENTED_COVER_SCALE})`
+                          : undefined
+                      }
+                    />
                   </Box>
                 ))}
               </Flex>

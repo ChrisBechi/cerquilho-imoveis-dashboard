@@ -32,6 +32,10 @@ import { TbRulerMeasure } from "react-icons/tb"
 import { FaBath, FaHeart, FaWhatsapp } from "react-icons/fa"
 import type { Listing } from "../../types/listing"
 import { useListingDrawer } from "../../context/ListingDrawerContext"
+import {
+  isRentedCoverImage,
+  RENTED_COVER_SCALE
+} from "../../utils/rentedCover"
 
 const MotionBox = motion(Box)
 const MotionImage = motion(Image)
@@ -344,6 +348,9 @@ function ListingCard({
           <MotionImage
             key={displayedImage}
             src={displayedImage}
+            referrerPolicy={
+              isRentedCoverImage(displayedImage) ? "no-referrer" : undefined
+            }
             alt={listing.title}
             onError={(event) => {
               event.currentTarget.onerror = null
@@ -364,7 +371,8 @@ function ListingCard({
               opacity: 0
             }}
             animate={{
-              opacity: 1
+              opacity: 1,
+              scale: isRentedCoverImage(displayedImage) ? RENTED_COVER_SCALE : 1
             }}
             exit={{
               opacity: 0

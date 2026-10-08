@@ -49,6 +49,10 @@ import { FaBath, FaWhatsapp } from "react-icons/fa"
 
 import ImageLightbox from "../ImageLightbox"
 import { centsToBRL, formatPrice } from "../../utils/formatters"
+import {
+  isRentedCoverImage,
+  RENTED_COVER_SCALE
+} from "../../utils/rentedCover"
 
 import useListingDetails from "../../hooks/useListingDetails"
 
@@ -171,9 +175,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
   const selectedImage = images[selectedIndex]
   const displayedImage = selectedImage || "/property-placeholder.svg"
-  const isRentedCover = displayedImage.startsWith(
-    "https://i.imgur.com/qK0Bms2.png"
-  )
+  const isRentedCover = isRentedCoverImage(displayedImage)
   const hasMultipleImages = images.length > 1
 
   const thumbnailsRef = useRef<HTMLDivElement>(null)
@@ -366,16 +368,14 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                   <MotionImage
                     key={displayedImage}
                     src={displayedImage}
+                    referrerPolicy={isRentedCover ? "no-referrer" : undefined}
                     onError={(event) => {
                       event.currentTarget.onerror = null
                       event.currentTarget.src = "/property-placeholder.svg"
                     }}
                     alt={listing.title}
                     w="100%"
-                    h={isRentedCover ? "calc(100% + 4px)" : "100%"}
-                    position={isRentedCover ? "absolute" : "relative"}
-                    top={isRentedCover ? "-2px" : undefined}
-                    left={isRentedCover ? 0 : undefined}
+                    h="100%"
                     objectFit="cover"
                     display="block"
                     cursor="zoom-in"
@@ -398,7 +398,8 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       opacity: 0
                     }}
                     animate={{
-                      opacity: 1
+                      opacity: 1,
+                      scale: isRentedCover ? RENTED_COVER_SCALE : 1
                     }}
                     exit={{
                       opacity: 0
@@ -610,10 +611,18 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                     >
                       <Image
                         src={image}
+                        referrerPolicy={
+                          isRentedCoverImage(image) ? "no-referrer" : undefined
+                        }
                         w="100%"
                         h="100%"
                         objectFit="cover"
                         display="block"
+                        transform={
+                          isRentedCoverImage(image)
+                            ? `scale(${RENTED_COVER_SCALE})`
+                            : undefined
+                        }
                       />
 
                       {selectedIndex === index && (
