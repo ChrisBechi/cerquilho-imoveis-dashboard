@@ -51,6 +51,8 @@ import ImageLightbox from "../ImageLightbox"
 import { centsToBRL, formatPrice } from "../../utils/formatters"
 import {
   isRentedCoverImage,
+  RENTED_COVER_ASPECT_RATIO,
+  RENTED_COVER_IMAGE_LAYOUT,
   RENTED_COVER_SCALE
 } from "../../utils/rentedCover"
 
@@ -357,10 +359,8 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
               <Box
                 position="relative"
                 w="100%"
-                h={{
-                  base: "350px",
-                  md: "320px"
-                }}
+                h={isRentedCover ? "auto" : { base: "350px", md: "320px" }}
+                aspectRatio={isRentedCover ? RENTED_COVER_ASPECT_RATIO : undefined}
                 overflow="hidden"
                 bg="black"
               >
@@ -374,9 +374,13 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       event.currentTarget.src = "/property-placeholder.svg"
                     }}
                     alt={listing.title}
-                    w="100%"
-                    h="100%"
-                    objectFit="cover"
+                    w={isRentedCover ? RENTED_COVER_IMAGE_LAYOUT.width : "100%"}
+                    maxW={isRentedCover ? "none" : "100%"}
+                    h={isRentedCover ? RENTED_COVER_IMAGE_LAYOUT.height : "100%"}
+                    position={isRentedCover ? "absolute" : "relative"}
+                    left={isRentedCover ? RENTED_COVER_IMAGE_LAYOUT.left : undefined}
+                    top={isRentedCover ? RENTED_COVER_IMAGE_LAYOUT.top : undefined}
+                    objectFit="contain"
                     display="block"
                     cursor="zoom-in"
                     onDoubleClick={onLightboxOpen}
@@ -398,8 +402,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                       opacity: 0
                     }}
                     animate={{
-                      opacity: 1,
-                      scale: isRentedCover ? RENTED_COVER_SCALE : 1
+                      opacity: 1
                     }}
                     exit={{
                       opacity: 0
