@@ -140,6 +140,10 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
       border="1px solid rgba(255,80,80,0.25)"
       borderRadius="2xl"
       p={4}
+      gap={3}
+      w="100%"
+      minW={0}
+      boxSizing="border-box"
       position="relative"
       overflow="hidden"
     >
@@ -155,7 +159,7 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
         filter="blur(20px)"
       />
 
-      <Stack spacing={2} zIndex={1} flex={1}>
+      <Stack spacing={2} zIndex={1} flex={1} minW={0}>
         <Text
           color="gray.400"
           fontSize="xs"
@@ -167,8 +171,8 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
         </Text>
 
         {listing.old_price ? (
-          <Flex gap={4} align="flex-end" wrap="wrap">
-            <Stack spacing={0} flex="1" minW="130px">
+          <Flex gap={2} direction="column" minW={0}>
+            <Stack spacing={0} minW={0}>
               <Text color="gray.400" fontSize="xs">
                 Antes:
                 <Text
@@ -184,7 +188,7 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
               </Text>
             </Stack>
 
-            <Stack spacing={0} flex="1" minW="130px">
+            <Stack spacing={0} minW={0}>
               <Text color="gray.400" fontSize="xs">
                 Agora
               </Text>
@@ -209,7 +213,13 @@ function ListingReducedSection({ listing }: { listing: Listing }) {
         )}
       </Stack>
 
-      <Stat textAlign="right" minW="120px" zIndex={1}>
+      <Stat
+        textAlign="right"
+        minW={{ base: "86px", sm: "100px" }}
+        maxW="110px"
+        flexShrink={0}
+        zIndex={1}
+      >
         <StatLabel color="gray.400" fontSize="xs">
           Economia
         </StatLabel>
