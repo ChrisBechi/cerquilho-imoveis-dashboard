@@ -507,7 +507,7 @@ export default function ImageLightbox({
                     touchAction: "none",
                     cursor: scale > 1 ? "grab" : "zoom-in",
                     willChange: "transform",
-                    clipPath: isRentedCover ? "inset(3px)" : undefined
+                    clipPath: isRentedCover ? "inset(8px)" : undefined
                   }}
                   initial={{
                     opacity: 0
