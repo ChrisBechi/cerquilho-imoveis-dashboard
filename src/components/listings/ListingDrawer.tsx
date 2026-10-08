@@ -171,6 +171,9 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
 
   const selectedImage = images[selectedIndex]
   const displayedImage = selectedImage || "/property-placeholder.svg"
+  const isRentedCover = displayedImage.startsWith(
+    "https://i.imgur.com/qK0Bms2.png"
+  )
   const hasMultipleImages = images.length > 1
 
   const thumbnailsRef = useRef<HTMLDivElement>(null)
@@ -369,7 +372,10 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                     }}
                     alt={listing.title}
                     w="100%"
-                    h="100%"
+                    h={isRentedCover ? "calc(100% + 4px)" : "100%"}
+                    position={isRentedCover ? "absolute" : "relative"}
+                    top={isRentedCover ? "-2px" : undefined}
+                    left={isRentedCover ? 0 : undefined}
                     objectFit="cover"
                     display="block"
                     cursor="zoom-in"
