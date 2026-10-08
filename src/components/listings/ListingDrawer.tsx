@@ -380,7 +380,7 @@ export default function ListingDrawer({ isOpen, onClose, listing }: Props) {
                     position={isRentedCover ? "absolute" : "relative"}
                     left={isRentedCover ? RENTED_COVER_IMAGE_LAYOUT.left : undefined}
                     top={isRentedCover ? RENTED_COVER_IMAGE_LAYOUT.top : undefined}
-                    objectFit="contain"
+                    objectFit={isRentedCover ? "contain" : "cover"}
                     display="block"
                     cursor="zoom-in"
                     onDoubleClick={onLightboxOpen}
